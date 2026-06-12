@@ -1,12 +1,12 @@
 {
   "name": "myntraclone",
   "version": "1.0.0",
+  "type": "module",
   "description": "clone of myntra ecommerce platform in professional way",
   "main": "index.js",
   "directories": {
     "doc": "docs"
   },
-  "type" : "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/gajanan-patil-44/myntraClone/issues"
   },
-  "homepage": "https://github.com/gajanan-patil-44/myntraClone#readme"
+  "homepage": "https://github.com/gajanan-patil-44/myntraClone#readme",
+  "dependencies": {
+    "dotenv": "^17.4.2"
+  }
 }
