@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import User from "../models/User.js";
+import bcrypt from "bcryptjs";
 
 dotenv.config();
 
@@ -9,8 +10,8 @@ const users = [
     firstName: "Admin",
     lastName: "User",
     email: "admin@myntra.com",
-    password: "admin123",
-    phone: "9876543210",
+    password: await bcrypt.hash("admin123", 10),
+    phone: "1213141516",
     address: {
       street: "M.G. Road",
       city: "Mumbai",
@@ -24,8 +25,8 @@ const users = [
     firstName: "Gajanan",
     lastName: "Patil",
     email: "user@myntra.com",
-    password: "user123",
-    phone: "9876501234",
+    password: await bcrypt.hash("user123", 10),
+    phone: "1122334455",
     address: {
       street: "Shivaji Nagar",
       city: "Kolhapur",
@@ -38,7 +39,7 @@ const users = [
   firstName: "First",
   lastName: "User",
   email: "firstuser@myntra.com",
-  password: "first123",
+  password: await bcrypt.hash("first123", 10),
   phone: "9876500001",
   address: {
     street: "Street 1",
@@ -52,7 +53,7 @@ const users = [
   firstName: "Second",
   lastName: "User",
   email: "seconduser@myntra.com",
-  password: "second123",
+  password: await bcrypt.hash("second123", 10),
   phone: "9876500002",
   address: {
     street: "Street 2",
@@ -66,7 +67,7 @@ const users = [
   firstName: "Third",
   lastName: "User",
   email: "thirduser@myntra.com",
-  password: "third123",
+  password: await bcrypt.hash("third123", 10),
   phone: "9876500003",
   address: {
     street: "Street 3",
