@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 
 import connectDB from "./src/config/db.js";
 import userRoute from "./src/routes/userRoute.js";
+import productRoute from "./src/routes/productRoute.js";
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/users", userRoute);
+app.use("/api/products", productRoute);
 
 app.get("/", (req, res) => {
   res.json({
