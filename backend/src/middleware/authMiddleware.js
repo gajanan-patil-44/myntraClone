@@ -3,7 +3,7 @@ import User from "../models/User.js";
 
 const authMiddleware = async (req, res, next) => {
   try {
-    console.log(req.headers.authorization);
+    // console.log(req.headers.authorization);
 
     const authHeader = req.headers.authorization;
 
@@ -20,8 +20,8 @@ const authMiddleware = async (req, res, next) => {
     const token = authHeader.split(" ")[1];
 
 
-console.log("URL:", req.originalUrl);
-console.log("TOKEN:", token);
+// console.log("URL:", req.originalUrl);
+// console.log("TOKEN:", token);
 
     const decoded = jwt.verify(
       token,
@@ -40,13 +40,13 @@ console.log("TOKEN:", token);
     req.user = user;
 
     next();
-  }  catch (error) {
-  console.log(error);
+  } catch (error) {
+  console.error(error);
 
   return res.status(401).json({
     success: false,
-    message: error.message,
+    message: "Invalid or expired token.",
   });
+  }
 }
-};
 export default authMiddleware;
