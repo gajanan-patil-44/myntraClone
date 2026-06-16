@@ -1,11 +1,25 @@
 import express from "express";
 
-import { getAllProducts, getProductById } from "../controllers/productController.js";
+import { getAllProducts, getProductById, createProduct, updateProduct,toggleProductStatus,deleteProduct} from "../controllers/productController.js";
+import authMiddleware from "../middleware/authMiddleware.js";
+import adminMiddleware from "../middleware/adminMiddleware.js";
 
 const router = express.Router();
 
 router.get("/", getAllProducts);
 router.get("/:id", getProductById);
 
+//CREATE PRODUCT - ONLY ADMIN
+router.post("/",authMiddleware, adminMiddleware ,createProduct); // This route protected and only accessible by admin.
+
+// (patch) UPDATE PRODUCT - ONLY ADMIN
+router.patch("/:id", authMiddleware, adminMiddleware, updateProduct); // This route protected and only accessible by admin.
+
+// PATCH TOGGLE PRODUCT ACTIVE STATUS - ONLY ADMIN
+
+router.patch("/:id/toggle-status", authMiddleware, adminMiddleware, toggleProductStatus); // This route protected and only accessible by admin.
+
+// DELETE PRODUCT - ONLY ADMIN
+router.delete("/:id", authMiddleware, adminMiddleware, deleteProduct);
 
 export default router;

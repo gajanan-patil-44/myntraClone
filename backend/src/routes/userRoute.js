@@ -13,7 +13,7 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 
-// TEMP TEST ROUTE
+// TEMP TEST USER ROUTE
 router.get(
   "/profile",
   authMiddleware,
@@ -25,6 +25,7 @@ router.get(
   }
 );
 
+// TEMP TEST ADMIN ROUTE
 router.get(
   "/admin-test",
   authMiddleware,

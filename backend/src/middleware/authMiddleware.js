@@ -3,6 +3,8 @@ import User from "../models/User.js";
 
 const authMiddleware = async (req, res, next) => {
   try {
+    // console.log(req.headers.authorization);
+
     const authHeader = req.headers.authorization;
 
     if (
@@ -16,6 +18,10 @@ const authMiddleware = async (req, res, next) => {
     }
 
     const token = authHeader.split(" ")[1];
+
+
+// console.log("URL:", req.originalUrl);
+// console.log("TOKEN:", token);
 
     const decoded = jwt.verify(
       token,
@@ -35,11 +41,12 @@ const authMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
-    return res.status(401).json({
-      success: false,
-      message: "Invalid or expired token.",
-    });
-  }
-};
+  console.error(error);
 
+  return res.status(401).json({
+    success: false,
+    message: "Invalid or expired token.",
+  });
+  }
+}
 export default authMiddleware;
