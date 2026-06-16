@@ -83,3 +83,57 @@ export const addToCart = async (req, res) => {
     });
   }
 };
+
+// GET CART
+export const getCart = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id)
+      .populate("cartItems.productId");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    let totalItems = 0;
+    let cartTotal = 0;
+
+    const cartItems = user.cartItems.map((item) => {
+      const product = item.productId;
+
+      const effectivePrice =
+        product.discountPrice > 0
+          ? product.discountPrice
+          : product.price;
+
+      const subtotal = effectivePrice * item.quantity;
+
+      totalItems += item.quantity;
+      cartTotal += subtotal;
+
+      return {
+        productId: product._id,
+        name: product.name,
+        image: product.images[0],
+        price: product.price,
+        discountPrice: product.discountPrice,
+        effectivePrice,
+        quantity: item.quantity,
+        subtotal,
+        isActive: product.isActive,
+      };
+    });
+
+    return res.status(200).json({
+      cartItems,
+      totalItems,
+      cartTotal,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
