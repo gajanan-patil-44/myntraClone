@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import connectDB from "./src/config/db.js";
 import userRoute from "./src/routes/userRoute.js";
 import productRoute from "./src/routes/productRoute.js";
+import cartRoute from "./src/routes/cartRoute.js";
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use(express.json());
 
 app.use("/api/users", userRoute);
 app.use("/api/products", productRoute);
+app.use("/api/cart", cartRoute);
 
 app.get("/", (req, res) => {
   res.json({
@@ -24,7 +26,7 @@ app.get("/", (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, () => {
   console.log(`Server Running on Port ${PORT}`);
