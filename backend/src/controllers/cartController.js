@@ -27,6 +27,13 @@ export const addToCart = async (req, res) => {
       });
     }
 
+    if (size && !product.sizes.includes(size)) 
+      {
+    return res.status(400).json({
+    message: "Invalid size selected",
+  });
+}
+
 // Color validation
     if (
       product.colors.length > 0 &&
@@ -36,6 +43,13 @@ export const addToCart = async (req, res) => {
         message: "Color is required for this product",
       });
     }
+
+    if (color && !product.colors.includes(color)) 
+      {
+    return res.status(400).json({
+    message: "Invalid color selected",
+  });
+}
 
     // 3. Check product active
     if (!product.isActive) {
