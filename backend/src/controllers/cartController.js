@@ -152,6 +152,7 @@ export const getCart = async (req, res) => {
       cartTotal += subtotal;
 
       return {
+        cartItemId: item._id,
         productId: product._id,
         name: product.name,
         image: product.images[0],
