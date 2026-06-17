@@ -186,7 +186,7 @@ export const getCart = async (req, res) => {
 export const updateCartQuantity = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { productId } = req.params;
+    const { cartItemId  } = req.params;
     const { action } = req.body;
 
     // Validate action
@@ -198,14 +198,7 @@ export const updateCartQuantity = async (req, res) => {
       });
     }
 
-    // Find product
-    const product = await Product.findById(productId);
-
-    if (!product) {
-      return res.status(404).json({
-        message: "Product not found",
-      });
-    }
+    
 
     // Find user
     const user = await User.findById(userId);
@@ -217,16 +210,24 @@ export const updateCartQuantity = async (req, res) => {
     }
 
     // Find cart item
-    const cartItem = user.cartItems.find(
-      (item) =>
-        item.productId.toString() === productId
-    );
+    const cartItem = user.cartItems.id(cartItemId);
 
     if (!cartItem) {
       return res.status(404).json({
         message: "Product not found in cart",
       });
     }
+
+    // Find product
+    const product = await Product.findById(
+      cartItem.productId
+    );
+
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found",
+      });
+}
 
     // Increase
     if (action === "increase") {
