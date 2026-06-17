@@ -137,3 +137,130 @@ export const getCart = async (req, res) => {
     });
   }
 };
+
+// UPDATE CART QUANTITY
+export const updateCartQuantity = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { productId } = req.params;
+    const { action } = req.body;
+
+    // Validate action
+    if (
+      action !== "increase" &&  action !== "decrease") 
+      {
+        return res.status(400).json({
+        message: "Invalid action",
+      });
+    }
+
+    // Find product
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found",
+      });
+    }
+
+    // Find user
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // Find cart item
+    const cartItem = user.cartItems.find(
+      (item) =>
+        item.productId.toString() === productId
+    );
+
+    if (!cartItem) {
+      return res.status(404).json({
+        message: "Product not found in cart",
+      });
+    }
+
+    // Increase
+    if (action === "increase") {
+      if (cartItem.quantity >= product.stock) {
+        return res.status(400).json({
+          message: `Only ${product.stock} items available in stock`,
+        });
+      }
+
+      cartItem.quantity += 1;
+    }
+
+    // Decrease
+    if (action === "decrease") {
+      if (cartItem.quantity <= 1) {
+        return res.status(400).json({
+          message:
+            "Quantity cannot be less than 1. Remove item instead.",
+        });
+      }
+
+      cartItem.quantity -= 1;
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Cart updated successfully",
+      cartItem,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+
+// REMOVE ITEM FROM CART
+export const removeCartItem = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { productId } = req.params;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const itemExists = user.cartItems.some(
+      (item) =>
+        item.productId.toString() === productId
+    );
+
+    if (!itemExists) {
+      return res.status(404).json({
+        message: "Product not found in cart",
+      });
+    }
+
+    user.cartItems = user.cartItems.filter(
+      (item) =>
+        item.productId.toString() !== productId
+    );
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Item removed from cart successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
