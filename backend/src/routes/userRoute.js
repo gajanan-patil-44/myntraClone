@@ -1,9 +1,7 @@
 import express from "express";
 
 import {
-  registerUser,
-  loginUser,
-} from "../controllers/userController.js";
+  registerUser,loginUser,updateAdress} from "../controllers/userController.js";
 
 import authMiddleware from "../middleware/authMiddleware.js";
 import adminMiddleware from "../middleware/adminMiddleware.js";
@@ -12,7 +10,7 @@ const router = express.Router();
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-
+router.put("/address",authMiddleware,updateAddress); // Update user address 
 // TEMP TEST USER ROUTE
 router.get(
   "/profile",
