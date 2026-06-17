@@ -83,7 +83,6 @@ export const registerUser = async (req, res) => {
 };
 
 // Login user code
-
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -95,6 +94,56 @@ export const loginUser = async (req, res) => {
         message: "Email and password are required.",
       });
     }
+
+    //UPDATE ADRESS
+export const updateAddress = async (req, res) => {
+  try {
+    const { street, city, state, pincode } = req.body;
+
+    // Validate input
+    if (
+      !street ||
+      !city ||
+      !state ||
+      !pincode
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "All address fields are required.",
+      });
+    }
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    user.address = {
+      street,
+      city,
+      state,
+      pincode,
+    };
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Address updated successfully.",
+      address: user.address,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 
     // 2. Find user
     const user = await User.findOne({ email });
