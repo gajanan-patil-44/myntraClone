@@ -271,7 +271,7 @@ export const updateCartQuantity = async (req, res) => {
 export const removeCartItem = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { productId } = req.params;
+    const { cartItemId  } = req.params;
 
     const user = await User.findById(userId);
 
@@ -281,10 +281,7 @@ export const removeCartItem = async (req, res) => {
       });
     }
 
-    const itemExists = user.cartItems.some(
-      (item) =>
-        item.productId.toString() === productId
-    );
+    const itemExists = user.cartItems.id(cartItemId);
 
     if (!itemExists) {
       return res.status(404).json({
@@ -292,10 +289,7 @@ export const removeCartItem = async (req, res) => {
       });
     }
 
-    user.cartItems = user.cartItems.filter(
-      (item) =>
-        item.productId.toString() !== productId
-    );
+    user.cartItems.pull(cartItemId);
 
     await user.save();
 
