@@ -70,13 +70,14 @@ const userSchema = new mongoose.Schema(
           default: 1,
         },
         size: {
-          type: String,
-          required: true,
-        },
-        color: {
-          type: String,
-          required: true,
-        },
+        type: String,
+        default: null,
+      },
+
+      color: {
+        type: String,
+        default: null,
+      },
       },
     ],
   },
