@@ -127,6 +127,10 @@ export const getCart = async (req, res) => {
         productId: product._id,
         name: product.name,
         image: product.images[0],
+
+        size: item.size,
+        color: item.color,
+
         price: product.price,
         discountPrice: product.discountPrice,
         effectivePrice,
