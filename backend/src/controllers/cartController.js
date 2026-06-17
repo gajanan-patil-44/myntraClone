@@ -54,10 +54,11 @@ export const addToCart = async (req, res) => {
     }
 
     // 6. Check if product already in cart
-    const existingItem = user.cartItems.find(
-      (item) => item.productId.toString() === productId && item.size === size &&
-    item.color === color
-    );
+    const existingItem = user.cartItems.find((item) =>
+    item.productId.toString() === productId &&
+    item.size === (size || null) &&
+    item.color === (color || null)
+);
 
     if (existingItem) {
       const newQuantity = existingItem.quantity + quantity;
@@ -74,8 +75,8 @@ export const addToCart = async (req, res) => {
       user.cartItems.push({
         productId,
         quantity,
-        size,
-        color,
+        size: size || null,
+        color: color || null,
       });
     }
 
