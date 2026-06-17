@@ -50,19 +50,15 @@ const productSchema = new mongoose.Schema(
       min: 0,
     },
 
-    sizes: [
-      {
-        type: String,
-        trim: true,
-      },
-    ],
+   sizes: {
+  type: [String],
+  default: [],
+},
 
-    colors: [
-      {
-        type: String,
-        trim: true,
-      },
-    ],
+colors: {
+  type: [String],
+  default: [],
+},
 
     images: [
       {

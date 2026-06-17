@@ -5,7 +5,7 @@ import Product from "../models/Product.js";
 export const addToCart = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { productId, quantity } = req.body;
+    const { productId, quantity,size,color } = req.body;
 
     // 1. Validate input
     if (!productId || !quantity || quantity <= 0) {
@@ -37,6 +37,13 @@ export const addToCart = async (req, res) => {
       });
     }
 
+    // 4.1 Validate size and color
+    if (!size || !color) {
+       return res.status(400).json({
+    message: "Size and color are required",
+  });
+}
+
     // 5. Get user
     const user = await User.findById(userId);
 
@@ -48,7 +55,8 @@ export const addToCart = async (req, res) => {
 
     // 6. Check if product already in cart
     const existingItem = user.cartItems.find(
-      (item) => item.productId.toString() === productId
+      (item) => item.productId.toString() === productId && item.size === size &&
+    item.color === color
     );
 
     if (existingItem) {
@@ -66,6 +74,8 @@ export const addToCart = async (req, res) => {
       user.cartItems.push({
         productId,
         quantity,
+        size,
+        color,
       });
     }
 
