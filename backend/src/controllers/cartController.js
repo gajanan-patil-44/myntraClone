@@ -17,9 +17,23 @@ export const addToCart = async (req, res) => {
     // 2. Check product exists
     const product = await Product.findById(productId);
 
-    if (!product) {
-      return res.status(404).json({
-        message: "Product not found",
+    // Size validation
+    if (
+      product.sizes.length > 0 &&
+      !size
+    ) {
+      return res.status(400).json({
+        message: "Size is required for this product",
+      });
+    }
+
+// Color validation
+    if (
+      product.colors.length > 0 &&
+      !color
+    ) {
+      return res.status(400).json({
+        message: "Color is required for this product",
       });
     }
 
