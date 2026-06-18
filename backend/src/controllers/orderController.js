@@ -7,7 +7,7 @@ import User from "../models/User.js";
  */
 export const createOrder = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     const user = await User.findById(userId);
 
@@ -99,3 +99,22 @@ export const createOrder = async (req, res) => {
   }
 };
 
+export const getMyOrders = async (req, res) => {
+  const orders = await Order.find({ userId: req.user.id }).sort({ createdAt: -1 });
+
+  res.json({ success: true, orders });
+};
+
+export const getOrderById = async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    return res.status(404).json({ message: "Order not found" });
+  }
+
+  if (order.userId.toString() !== req.user.id) {
+    return res.status(403).json({ message: "Unauthorized" });
+  }
+
+  res.json({ success: true, order });
+};
