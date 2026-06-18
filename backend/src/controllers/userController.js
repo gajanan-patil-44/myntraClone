@@ -96,53 +96,7 @@ export const loginUser = async (req, res) => {
     }
 
     //UPDATE ADRESS
-export const updateAddress = async (req, res) => {
-  try {
-    const { street, city, state, pincode } = req.body;
 
-    // Validate input
-    if (
-      !street ||
-      !city ||
-      !state ||
-      !pincode
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "All address fields are required.",
-      });
-    }
-
-    const user = await User.findById(req.user._id);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found.",
-      });
-    }
-
-    user.address = {
-      street,
-      city,
-      state,
-      pincode,
-    };
-
-    await user.save();
-
-    return res.status(200).json({
-      success: true,
-      message: "Address updated successfully.",
-      address: user.address,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
 
 
     // 2. Find user
@@ -187,6 +141,93 @@ export const updateAddress = async (req, res) => {
         lastName: user.lastName,
         email: user.email,
         role: user.role,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const { firstName, lastName, phone, address } = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    
+    // 1. Basic fields update
+    if (firstName !== undefined) user.firstName = firstName;
+    if (lastName !== undefined) user.lastName = lastName;
+    if (phone !== undefined) user.phone = phone;
+
+    // 2. Nested address update 
+  
+    if (address) {
+      if (
+      address.pincode !== undefined &&
+      !/^[0-9]{6}$/.test(address.pincode)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Pincode must be 6 digits",
+      });
+    }
+      user.address = {
+        street:
+          address.street !== undefined
+            ? address.street
+            : user.address?.street,
+
+        city:
+          address.city !== undefined
+            ? address.city
+            : user.address?.city,
+
+        state:
+          address.state !== undefined
+            ? address.state
+            : user.address?.state,
+
+        pincode:
+          address.pincode !== undefined
+            ? address.pincode
+            : user.address?.pincode,
+      };
+    }
+      if (
+      phone !== undefined &&
+      !/^[0-9]{10}$/.test(phone)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number must be 10 digits",
+      });
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
       },
     });
   } catch (error) {

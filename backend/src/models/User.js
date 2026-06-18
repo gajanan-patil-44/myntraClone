@@ -69,15 +69,23 @@ const userSchema = new mongoose.Schema(
           min: 1,
           default: 1,
         },
+        size: {
+        type: String,
+        default: null,
+      },
+
+      color: {
+        type: String,
+        default: null,
+      },
       },
     ],
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const User = mongoose.model("User", userSchema);
 
 export default User;
-

@@ -1,7 +1,6 @@
 import express from "express";
 
-import {
-  registerUser,loginUser,updateAdress} from "../controllers/userController.js";
+import {registerUser,loginUser,updateProfile,} from "../controllers/userController.js";
 
 import authMiddleware from "../middleware/authMiddleware.js";
 import adminMiddleware from "../middleware/adminMiddleware.js";
@@ -10,8 +9,9 @@ const router = express.Router();
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.put("/address",authMiddleware,updateAddress); // Update user address 
-// TEMP TEST USER ROUTE
+router.patch("/profile", authMiddleware, updateProfile);
+
+// get user profile
 router.get(
   "/profile",
   authMiddleware,
@@ -37,18 +37,3 @@ router.get(
 );
 
 export default router;
-
-
-
-
-
-// import express from "express";
-
-// import { registerUser, loginUser } from "../controllers/userController.js";
-
-// const router = express.Router();
-
-// router.post("/register", registerUser);
-// router.post("/login", loginUser);
-
-// export default router;
