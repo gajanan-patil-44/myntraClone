@@ -105,6 +105,7 @@ export const addToCart = async (req, res) => {
         quantity,
         size: size || null,
         color: color || null,
+        image: product.images?.[0] || null,
       });
     }
 

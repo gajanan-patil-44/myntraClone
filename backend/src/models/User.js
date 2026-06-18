@@ -77,7 +77,11 @@ const userSchema = new mongoose.Schema(
       color: {
         type: String,
         default: null,
-      },
+        },
+        image: {
+          type: String,
+          default: null,
+        },
       },
     ],
   },

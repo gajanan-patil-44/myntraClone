@@ -16,6 +16,9 @@ export const createOrder = async (req, res) => {
     }
 
     const cartItems = user.cartItems;
+    // const cartItems = user.cartItems.map(item => item.toObject());
+    console.log("USER ID:", user._id);
+console.log("CART ITEMS FROM DB:", user.cartItems);
 
     if (!cartItems || cartItems.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
@@ -50,6 +53,8 @@ export const createOrder = async (req, res) => {
         image: product.images?.[0],
         priceAtPurchase: price,
         quantity: item.quantity,
+        size: item.size,
+        color: item.color,
       });
 
       // reduce stock immediately (reservation logic)
