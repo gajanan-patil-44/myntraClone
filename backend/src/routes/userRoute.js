@@ -10,7 +10,8 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.patch("/profile", authMiddleware, updateProfile);
-// TEMP TEST USER ROUTE
+
+// get user profile
 router.get(
   "/profile",
   authMiddleware,
