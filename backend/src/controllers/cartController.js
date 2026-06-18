@@ -16,6 +16,11 @@ export const addToCart = async (req, res) => {
 
     // 2. Check product exists
     const product = await Product.findById(productId);
+    if (!product) {
+  return res.status(404).json({
+    message: "Product not found",
+  });
+}
 
     // Size validation
     if (
@@ -65,12 +70,7 @@ export const addToCart = async (req, res) => {
       });
     }
 
-    // 4.1 Validate size and color
-    if (!size || !color) {
-       return res.status(400).json({
-    message: "Size and color are required",
-  });
-}
+    
 
     // 5. Get user
     const user = await User.findById(userId);
