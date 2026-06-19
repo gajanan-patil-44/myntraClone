@@ -1,14 +1,15 @@
-
-
-import './App.css'
+import AppRoutes from "./routes/appRoutes"
 
 function App() {
 
 
   return (
-    <div className="App">
-      <h1>react running</h1>
-      </div>
+    <>
+    <AppRoutes />
+    <div className="bg-red-500 text-white p-6">
+      Tailwind Working......
+    </div>
+    </>
   )
 }
 
