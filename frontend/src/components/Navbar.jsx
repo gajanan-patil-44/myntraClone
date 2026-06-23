@@ -101,6 +101,10 @@ const Navbar = () => {
                         <li
                           key={`${section}-${item}`}
                           className="text-sm text-gray-700 hover:font-semibold cursor-pointer"
+                          onClick={() => {
+                            navigate(`/products/${activeCategory}/${item}`);
+                            setActiveCategory(null);
+                          }}
                         >
                           {item}
                         </li>
