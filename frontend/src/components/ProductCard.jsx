@@ -37,7 +37,7 @@ const ProductCard = ({ product }) => {
     >
       {/* Image Section */}
 
-      <div className="relative aspect-[3/4] bg-gray-100 overflow-hidden">
+      <div className="relative aspect-3/4 bg-gray-100 overflow-hidden">
         {imageUrl ? (
           <img
             src={imageUrl}
