@@ -172,7 +172,7 @@ const Footer = () => {
             <div className="flex flex-wrap gap-y-2 text-gray-600">
               {popularSearches.map((item, index) => (
                 <span
-                  key={item}
+                  key={`${item}-${index}`}
                   className="cursor-pointer hover:text-pink-600"
                   onClick={() => {
                     // TODO:
