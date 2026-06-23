@@ -3,10 +3,11 @@ import { categories } from "../constants/categories";
 import { navbarCategories } from "../constants/navbarCategories";
 import myntraLogo from "../assets/myntraLogo.jpg";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState(null);
   return (
     <header className="fixed top-0 left-0 right-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)] z-50">
@@ -23,19 +24,34 @@ const Navbar = () => {
         {/* Categories */}
         <ul className="hidden md:flex items-center gap-8 text-sm font-semibold uppercase">
           {Object.keys(categories).map((category) => (
-            <li
-              key={category}
-              className={`cursor-pointer h-full flex items-center border-b-4 transition-colors ${
-                activeCategory === category
-                  ? "border-orange-400"
-                  : "border-transparent"
-              }`}
-              onMouseEnter={() => {
-                setActiveCategory(category);
-              }}
-            >
-              {category}
-            </li>
+            <Link to={`/products/${category}`} key={category}>
+              {/* <li
+                className={`cursor-pointer h-full flex items-center border-b-4 transition-colors ${
+                  activeCategory === category
+                    ? "border-orange-400"
+                    : "border-transparent"
+                }`}
+                onMouseEnter={() => setActiveCategory(category)}
+              >
+                {category}
+              </li> */}
+              <li
+                key={category}
+                className={`cursor-pointer h-full flex items-center border-b-4 transition-colors ${
+                  activeCategory === category
+                    ? "border-orange-400"
+                    : "border-transparent"
+                }`}
+                onMouseEnter={() => {
+                  setActiveCategory(category);
+                }}
+                onClick={() => {
+                  window.location.href = `/products/${category}`;
+                }}
+              >
+                {category}
+              </li>
+            </Link>
           ))}
         </ul>
 

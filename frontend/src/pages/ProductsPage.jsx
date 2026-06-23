@@ -1,9 +1,10 @@
 import { useEffect,useState } from "react";
 import api from "../api/axios";
 import ProductCard from "../components/ProductCard";
+import { useParams } from "react-router-dom";
 
 const ProductsPage = () => {
-
+  const { category } = useParams();
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -21,6 +22,14 @@ const ProductsPage = () => {
 
     fetchProducts();
   }, []);
+
+  const filteredProducts = category
+  ? products.filter(
+      (product) =>
+        product.category.toLowerCase() ===
+        category.toLowerCase()
+    )
+  : products;
 
   return (
   <>
@@ -50,7 +59,7 @@ const ProductsPage = () => {
           </h1>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <ProductCard
                 key={product._id}
                 product={product}
