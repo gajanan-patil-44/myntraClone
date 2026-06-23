@@ -55,7 +55,7 @@ const ProductsPage = () => {
 
         <section className="w-full lg:w-4/5">
           <h1 className="text-3xl font-bold mb-6">
-            All Products
+            {category || "All Products"}
           </h1>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">

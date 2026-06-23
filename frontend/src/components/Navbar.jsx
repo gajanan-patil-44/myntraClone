@@ -25,16 +25,6 @@ const Navbar = () => {
         <ul className="hidden md:flex items-center gap-8 text-sm font-semibold uppercase">
           {Object.keys(categories).map((category) => (
             <Link to={`/products/${category}`} key={category}>
-              {/* <li
-                className={`cursor-pointer h-full flex items-center border-b-4 transition-colors ${
-                  activeCategory === category
-                    ? "border-orange-400"
-                    : "border-transparent"
-                }`}
-                onMouseEnter={() => setActiveCategory(category)}
-              >
-                {category}
-              </li> */}
               <li
                 key={category}
                 className={`cursor-pointer h-full flex items-center border-b-4 transition-colors ${
@@ -46,7 +36,8 @@ const Navbar = () => {
                   setActiveCategory(category);
                 }}
                 onClick={() => {
-                  window.location.href = `/products/${category}`;
+                  navigate(`/products/${category}`);
+                  setActiveCategory(null);
                 }}
               >
                 {category}
