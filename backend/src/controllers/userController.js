@@ -62,10 +62,16 @@ export const registerUser = async (req, res) => {
       user.role
     );
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false, 
+      sameSite: "lax", 
+      maxAge: 7 * 24 * 60 * 60 * 1000, 
+    });
+
     return res.status(201).json({
       success: true,
       message: "User registered successfully.",
-      token,
       user: {
         id: user._id,
         firstName: user.firstName,
@@ -130,11 +136,18 @@ export const loginUser = async (req, res) => {
     // 5. Generate JWT
     const token = generateToken(user._id, user.role);
 
+    // store in cookie
+      res.cookie("token", token, {
+      httpOnly: true,
+      secure: false, 
+      sameSite: "lax", // important for frontend-backend
+      maxAge: 7 * 24 * 60 * 60 * 1000, 
+    });
+
     // 6. Send response
     return res.status(200).json({
       success: true,
       message: "Login successful.",
-      token,
       user: {
         id: user._id,
         firstName: user.firstName,
@@ -236,4 +249,14 @@ export const updateProfile = async (req, res) => {
       message: error.message,
     });
   }
+};
+
+// Logout user code
+export const logoutUser = (req, res) => {
+  res.clearCookie("token");
+
+  return res.status(200).json({
+    success: true,
+    message: "Logged out successfully.",
+  });
 };
