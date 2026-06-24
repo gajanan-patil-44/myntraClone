@@ -10,6 +10,8 @@ import cartRoute from "./src/routes/cartRoute.js";
 import orderRoute from "./src/routes/orderRoute.js";
 import wishlistRoute from "./src/routes/wishlistRoute.js";
 
+import authRoute from "./src/routes/authRoute.js";
+
 dotenv.config();
 
 const app = express();
@@ -30,6 +32,8 @@ app.use("/api/products", productRoute);
 app.use("/api/cart", cartRoute);
 app.use("/api/orders", orderRoute);
 app.use("/api", wishlistRoute);
+
+app.use("/api/auth", authRoute);
 
 app.get("/", (req, res) => {
   res.json({
