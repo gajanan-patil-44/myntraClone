@@ -1,85 +1,93 @@
+import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../api/axios";
-import { clearAuth, setError, setLoading, setUser } from "./authSlice";
 
-export const fetchUserProfile = () => async (dispatch) => {
-  try {
-    dispatch(setLoading(true));
-    dispatch(setError(null));
-
-    const response = await api.get("/users/profile");
-
-    dispatch(setUser(response.data.user));
-  } catch (error) {
-    dispatch(clearAuth());
-  } finally {
-    dispatch(setLoading(false));
+// ================= FETCH LOGGED-IN USER PROFILE =================
+export const fetchUserProfile = createAsyncThunk(
+  "auth/fetchUserProfile",
+  async (_, thunkAPI) => {
+    try {
+      const response = await api.get("/users/profile");
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch user profile."
+      );
+    }
   }
-};
+);
 
-export const loginUser = (loginData) => async (dispatch) => {
-  try {
-    dispatch(setLoading(true));
-    dispatch(setError(null));
-
-    const response = await api.post("/users/login", loginData);
-
-    dispatch(setUser(response.data.user));
-
-    return {
-      success: true,
-      data: response.data,
-    };
-  } catch (error) {
-    const message =
-      error.response?.data?.message || "Login failed. Please try again.";
-
-    dispatch(setError(message));
-
-    return {
-      success: false,
-      message,
-    };
-  } finally {
-    dispatch(setLoading(false));
+// ================= LOGIN WITH EMAIL + PASSWORD =================
+export const loginUser = createAsyncThunk(
+  "auth/loginUser",
+  async (loginData, thunkAPI) => {
+    try {
+      const response = await api.post("/users/login", loginData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Login failed. Please try again."
+      );
+    }
   }
-};
+);
 
-export const registerUser = (registerData) => async (dispatch) => {
-  try {
-    dispatch(setLoading(true));
-    dispatch(setError(null));
-
-    const response = await api.post("/users/register", registerData);
-
-    dispatch(setUser(response.data.user));
-
-    return {
-      success: true,
-      data: response.data,
-    };
-  } catch (error) {
-    const message =
-      error.response?.data?.message || "Registration failed. Please try again.";
-
-    dispatch(setError(message));
-
-    return {
-      success: false,
-      message,
-    };
-  } finally {
-    dispatch(setLoading(false));
+// ================= REGISTER USER =================
+export const registerUser = createAsyncThunk(
+  "auth/registerUser",
+  async (registerData, thunkAPI) => {
+    try {
+      const response = await api.post("/users/register", registerData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Registration failed. Please try again."
+      );
+    }
   }
-};
+);
 
-export const logoutUser = () => async (dispatch) => {
-  try {
-    dispatch(setLoading(true));
-    await api.post("/users/logout");
-    dispatch(clearAuth());
-  } catch (error) {
-    dispatch(clearAuth());
-  } finally {
-    dispatch(setLoading(false));
+// ================= SEND OTP =================
+export const sendOtp = createAsyncThunk(
+  "auth/sendOtp",
+  async ({ email }, thunkAPI) => {
+    try {
+      const response = await api.post("/auth/send-otp", { email });
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to send OTP."
+      );
+    }
   }
-};
+);
+
+// ================= VERIFY OTP LOGIN =================
+export const verifyOtpLogin = createAsyncThunk(
+  "auth/verifyOtpLogin",
+  async ({ email, otp }, thunkAPI) => {
+    try {
+      const response = await api.post("/auth/verify-otp", { email, otp });
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "OTP verification failed."
+      );
+    }
+  }
+);
+
+// ================= LOGOUT USER =================
+export const logoutUser = createAsyncThunk(
+  "auth/logoutUser",
+  async (_, thunkAPI) => {
+    try {
+      const response = await api.post("/users/logout");
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Logout failed."
+      );
+    }
+  }
+);
