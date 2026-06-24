@@ -6,6 +6,10 @@ import { useParams } from "react-router-dom";
 const ProductsPage = () => {
   const { category, subCategory } = useParams();
   const [products, setProducts] = useState([]);
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [selectedSubCategories, setSelectedSubCategories] = useState([]);
+  const [selectedColors, setSelectedColors] = useState([]);
+  const [selectedSizes, setSelectedSizes] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -65,6 +69,65 @@ const ProductsPage = () => {
     });
   });
 
+  const handleBrandChange = (brand) => {
+    setSelectedBrands((prev) =>
+      prev.includes(brand)
+        ? prev.filter((item) => item !== brand)
+        : [...prev, brand],
+    );
+  };
+
+  const handleSubCategoryChange = (subCategory) => {
+    setSelectedSubCategories((prev) =>
+      prev.includes(subCategory)
+        ? prev.filter((item) => item !== subCategory)
+        : [...prev, subCategory],
+    );
+  };
+
+  const handleColorChange = (color) => {
+  setSelectedColors((prev) =>
+    prev.includes(color)
+      ? prev.filter((item) => item !== color)
+      : [...prev, color]
+  );
+};
+const handleSizeChange = (size) => {
+  setSelectedSizes((prev) =>
+    prev.includes(size)
+      ? prev.filter((item) => item !== size)
+      : [...prev, size]
+  );
+};
+
+  const displayProducts = categoryProducts.filter((product) => {
+  const subCategoryMatch =
+    selectedSubCategories.length === 0 ||
+    selectedSubCategories.includes(product.subCategory);
+
+  const brandMatch =
+    selectedBrands.length === 0 ||
+    selectedBrands.includes(product.brand);
+
+  const colorMatch =
+    selectedColors.length === 0 ||
+    product.colors?.some((color) =>
+      selectedColors.includes(color)
+    );
+    const sizeMatch =
+  selectedSizes.length === 0 ||
+  product.sizes?.some((size) =>
+    selectedSizes.includes(size)
+  );
+
+  return (
+    subCategoryMatch &&
+    brandMatch &&
+    colorMatch &&
+  sizeMatch
+  );
+});
+
   return (
     <>
       <div className="mb-6 mx-6 mt-3">
@@ -84,7 +147,7 @@ const ProductsPage = () => {
             : category || "All Products"}
 
           <span className="ml-2 text-gray-500 font-normal">
-            - {categoryProducts.length} Items
+            - {displayProducts.length} Items
           </span>
         </h1>
       </div>
@@ -96,29 +159,55 @@ const ProductsPage = () => {
             <h2 className="text-2xl font-bold mb-6">FILTERS</h2>
 
             <div>
+              {!subCategory && (
               <div className="border-t border-gray-200 py-4">
                 <h3 className="text-sm font-bold uppercase mb-3">Categories</h3>
 
                 <div className="space-y-2">
                   {Object.entries(categoryCounts).map(([subCat, count]) => (
-                    <div key={subCat} className="text-sm text-gray-700">
-                      {subCat}
-                      <span className="text-gray-400 ml-1">({count})</span>
-                    </div>
+                    <label
+                      key={subCat}
+                      className="flex items-center gap-2 text-sm cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedSubCategories.includes(subCat)}
+                        onChange={() => handleSubCategoryChange(subCat)}
+                      />
+
+                      <span>
+                        {subCat}
+                        <span className="text-gray-400 ml-1">({count})</span>
+                      </span>
+                    </label>
                   ))}
                 </div>
               </div>
+              )}
 
               <div className="border-t border-gray-200 py-4">
                 <h3 className="text-sm font-bold uppercase mb-3">Brand</h3>
 
                 <div className="space-y-2">
-                  {Object.entries(brandCounts).map(([brand, count]) => (
-                    <div key={brand} className="text-sm text-gray-700">
-                      {brand}
-                      <span className="text-gray-400 ml-1">({count})</span>
-                    </div>
-                  ))}
+                  {Object.entries(brandCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([brand, count]) => (
+                      <label
+                        key={brand}
+                        className="flex items-center gap-2 text-sm cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedBrands.includes(brand)}
+                          onChange={() => handleBrandChange(brand)}
+                        />
+
+                        <span>
+                          {brand}
+                          <span className="text-gray-400 ml-1">({count})</span>
+                        </span>
+                      </label>
+                    ))}
                 </div>
               </div>
 
@@ -127,27 +216,61 @@ const ProductsPage = () => {
               </div>
 
               <div className="border-t border-gray-200 py-4">
-                <h3 className="text-sm font-bold uppercase mb-3">Brand</h3>
+                <h3 className="text-sm font-bold uppercase mb-3">Color</h3>
                 <div className="space-y-2">
-                  {Object.entries(colorCounts).map(([color, count]) => (
-                    <div key={color} className="text-sm text-gray-700">
-                      {color}
-                      <span className="text-gray-400 ml-1">({count})</span>
-                    </div>
-                  ))}
-                </div>
+  {Object.entries(colorCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([color, count]) => (
+      <label
+        key={color}
+        className="flex items-center gap-2 text-sm cursor-pointer"
+      >
+        <input
+          type="checkbox"
+          checked={selectedColors.includes(color)}
+          onChange={() =>
+            handleColorChange(color)
+          }
+        />
+
+        <span>
+          {color}
+          <span className="text-gray-400 ml-1">
+            ({count})
+          </span>
+        </span>
+      </label>
+    ))}
+</div>
               </div>
 
               <div className="border-t border-gray-200 py-4">
                 <h3 className="text-sm font-bold uppercase mb-3">Size</h3>
                 <div className="space-y-2">
-                  {Object.entries(sizeCounts).map(([size, count]) => (
-                    <div key={size} className="text-sm text-gray-700">
-                      {size}
-                      <span className="text-gray-400 ml-1">({count})</span>
-                    </div>
-                  ))}
-                </div>
+  {Object.entries(sizeCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([size, count]) => (
+      <label
+        key={size}
+        className="flex items-center gap-2 text-sm cursor-pointer"
+      >
+        <input
+          type="checkbox"
+          checked={selectedSizes.includes(size)}
+          onChange={() =>
+            handleSizeChange(size)
+          }
+        />
+
+        <span>
+          {size}
+          <span className="text-gray-400 ml-1">
+            ({count})
+          </span>
+        </span>
+      </label>
+    ))}
+</div>
               </div>
             </div>
           </aside>
@@ -172,7 +295,7 @@ const ProductsPage = () => {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
-              {categoryProducts.map((product) => (
+              {displayProducts.map((product) => (
                 <ProductCard key={product._id} product={product} />
               ))}
             </div>
