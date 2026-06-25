@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useRef } from "react";
 import { logoutUser } from "../store/slices/authThunks";
+import { fetchWishlist } from "../store/slices/wishlistThunks";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -17,6 +18,8 @@ const Navbar = () => {
   const profileMenuRef = useRef(null);
 
   const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { items: wishlistItems } = useSelector((state) => state.wishlist);
+
   const handleProfileClick = () => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -40,6 +43,16 @@ const Navbar = () => {
     // Navigate to the profile page leter
     navigate("/");
   };
+
+  const handleWishlistClick = () => {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+
+    navigate("/wishlist");
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -56,6 +69,13 @@ const Navbar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchWishlist());
+    }
+  }, [dispatch, isAuthenticated]);
+
   return (
     <header className="fixed top-0 left-0 right-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)] z-50">
       <nav className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-6">
@@ -106,17 +126,19 @@ const Navbar = () => {
         {/* Actions */}
         <div className="flex items-center gap-5">
           <div className="relative" ref={profileMenuRef}>
-  <div
-    className="flex flex-col items-center text-xs font-medium cursor-pointer"
-    onClick={handleProfileClick}
-  >
-    <FiUser size={20} />
-    <span>{isAuthenticated ? user?.firstName || "Profile" : "Profile"}</span>
-  </div>
+            <div
+              className="flex flex-col items-center text-xs font-medium cursor-pointer"
+              onClick={handleProfileClick}
+            >
+              <FiUser size={20} />
+              <span>
+                {isAuthenticated ? user?.firstName || "Profile" : "Profile"}
+              </span>
+            </div>
 
-  {isAuthenticated && isProfileMenuOpen && (
-    <div className="absolute top-12 right-0 w-44 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
-      {/* <button
+            {isAuthenticated && isProfileMenuOpen && (
+              <div className="absolute top-12 right-0 w-44 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
+                {/* <button
         type="button"
         onClick={handleMyProfile}
         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
@@ -124,20 +146,29 @@ const Navbar = () => {
         My Profile
       </button> */}
 
-      <button
-        type="button"
-        onClick={handleLogout}
-        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-      >
-        Logout
-      </button>
-    </div>
-  )}
-</div>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
 
-          <div className="flex flex-col items-center text-xs font-medium cursor-pointer">
+          <div
+            className="relative flex flex-col items-center text-xs font-medium cursor-pointer"
+            onClick={handleWishlistClick}
+          >
             <FiHeart size={20} />
             <span>Wishlist</span>
+
+            {isAuthenticated && wishlistItems.length > 0 && (
+              <span className="absolute -top-2 left-5 min-w-[18px] h-[18px] px-1 rounded-full bg-pink-500 text-white text-[10px] flex items-center justify-center font-semibold">
+                {wishlistItems.length}
+              </span>
+            )}
           </div>
 
           <div className="flex flex-col items-center text-xs font-medium cursor-pointer">

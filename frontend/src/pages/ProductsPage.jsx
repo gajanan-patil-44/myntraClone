@@ -86,47 +86,37 @@ const ProductsPage = () => {
   };
 
   const handleColorChange = (color) => {
-  setSelectedColors((prev) =>
-    prev.includes(color)
-      ? prev.filter((item) => item !== color)
-      : [...prev, color]
-  );
-};
-const handleSizeChange = (size) => {
-  setSelectedSizes((prev) =>
-    prev.includes(size)
-      ? prev.filter((item) => item !== size)
-      : [...prev, size]
-  );
-};
+    setSelectedColors((prev) =>
+      prev.includes(color)
+        ? prev.filter((item) => item !== color)
+        : [...prev, color],
+    );
+  };
+  const handleSizeChange = (size) => {
+    setSelectedSizes((prev) =>
+      prev.includes(size)
+        ? prev.filter((item) => item !== size)
+        : [...prev, size],
+    );
+  };
 
   const displayProducts = categoryProducts.filter((product) => {
-  const subCategoryMatch =
-    selectedSubCategories.length === 0 ||
-    selectedSubCategories.includes(product.subCategory);
+    const subCategoryMatch =
+      selectedSubCategories.length === 0 ||
+      selectedSubCategories.includes(product.subCategory);
 
-  const brandMatch =
-    selectedBrands.length === 0 ||
-    selectedBrands.includes(product.brand);
+    const brandMatch =
+      selectedBrands.length === 0 || selectedBrands.includes(product.brand);
 
-  const colorMatch =
-    selectedColors.length === 0 ||
-    product.colors?.some((color) =>
-      selectedColors.includes(color)
-    );
+    const colorMatch =
+      selectedColors.length === 0 ||
+      product.colors?.some((color) => selectedColors.includes(color));
     const sizeMatch =
-  selectedSizes.length === 0 ||
-  product.sizes?.some((size) =>
-    selectedSizes.includes(size)
-  );
+      selectedSizes.length === 0 ||
+      product.sizes?.some((size) => selectedSizes.includes(size));
 
-  return (
-    subCategoryMatch &&
-    brandMatch &&
-    colorMatch &&
-  sizeMatch
-  );
-});
+    return subCategoryMatch && brandMatch && colorMatch && sizeMatch;
+  });
 
   return (
     <>
@@ -160,29 +150,31 @@ const handleSizeChange = (size) => {
 
             <div>
               {!subCategory && (
-              <div className="border-t border-gray-200 py-4">
-                <h3 className="text-sm font-bold uppercase mb-3">Categories</h3>
+                <div className="border-t border-gray-200 py-4">
+                  <h3 className="text-sm font-bold uppercase mb-3">
+                    Categories
+                  </h3>
 
-                <div className="space-y-2">
-                  {Object.entries(categoryCounts).map(([subCat, count]) => (
-                    <label
-                      key={subCat}
-                      className="flex items-center gap-2 text-sm cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedSubCategories.includes(subCat)}
-                        onChange={() => handleSubCategoryChange(subCat)}
-                      />
+                  <div className="space-y-2">
+                    {Object.entries(categoryCounts).map(([subCat, count]) => (
+                      <label
+                        key={subCat}
+                        className="flex items-center gap-2 text-sm cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedSubCategories.includes(subCat)}
+                          onChange={() => handleSubCategoryChange(subCat)}
+                        />
 
-                      <span>
-                        {subCat}
-                        <span className="text-gray-400 ml-1">({count})</span>
-                      </span>
-                    </label>
-                  ))}
+                        <span>
+                          {subCat}
+                          <span className="text-gray-400 ml-1">({count})</span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
               )}
 
               <div className="border-t border-gray-200 py-4">
@@ -218,59 +210,51 @@ const handleSizeChange = (size) => {
               <div className="border-t border-gray-200 py-4">
                 <h3 className="text-sm font-bold uppercase mb-3">Color</h3>
                 <div className="space-y-2">
-  {Object.entries(colorCounts)
-    .sort((a, b) => b[1] - a[1])
-    .map(([color, count]) => (
-      <label
-        key={color}
-        className="flex items-center gap-2 text-sm cursor-pointer"
-      >
-        <input
-          type="checkbox"
-          checked={selectedColors.includes(color)}
-          onChange={() =>
-            handleColorChange(color)
-          }
-        />
+                  {Object.entries(colorCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([color, count]) => (
+                      <label
+                        key={color}
+                        className="flex items-center gap-2 text-sm cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedColors.includes(color)}
+                          onChange={() => handleColorChange(color)}
+                        />
 
-        <span>
-          {color}
-          <span className="text-gray-400 ml-1">
-            ({count})
-          </span>
-        </span>
-      </label>
-    ))}
-</div>
+                        <span>
+                          {color}
+                          <span className="text-gray-400 ml-1">({count})</span>
+                        </span>
+                      </label>
+                    ))}
+                </div>
               </div>
 
               <div className="border-t border-gray-200 py-4">
                 <h3 className="text-sm font-bold uppercase mb-3">Size</h3>
                 <div className="space-y-2">
-  {Object.entries(sizeCounts)
-    .sort((a, b) => b[1] - a[1])
-    .map(([size, count]) => (
-      <label
-        key={size}
-        className="flex items-center gap-2 text-sm cursor-pointer"
-      >
-        <input
-          type="checkbox"
-          checked={selectedSizes.includes(size)}
-          onChange={() =>
-            handleSizeChange(size)
-          }
-        />
+                  {Object.entries(sizeCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([size, count]) => (
+                      <label
+                        key={size}
+                        className="flex items-center gap-2 text-sm cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedSizes.includes(size)}
+                          onChange={() => handleSizeChange(size)}
+                        />
 
-        <span>
-          {size}
-          <span className="text-gray-400 ml-1">
-            ({count})
-          </span>
-        </span>
-      </label>
-    ))}
-</div>
+                        <span>
+                          {size}
+                          <span className="text-gray-400 ml-1">({count})</span>
+                        </span>
+                      </label>
+                    ))}
+                </div>
               </div>
             </div>
           </aside>

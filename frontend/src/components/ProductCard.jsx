@@ -1,9 +1,20 @@
-import { useEffect, useState } from "react";
-import { FiStar,FiHeart } from "react-icons/fi";
+import { useEffect, useState, useMemo } from "react";
+import { FiStar, FiHeart } from "react-icons/fi";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import {
+  fetchWishlist,
+  toggleWishlistItem,
+} from "../store/slices/wishlistThunks";
 
 const ProductCard = ({ product }) => {
   const [currentImage, setCurrentImage] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { items: wishlistItems } = useSelector((state) => state.wishlist);
 
   const discountPercentage =
     product.discountPrice > 0
@@ -11,6 +22,9 @@ const ProductCard = ({ product }) => {
           ((product.price - product.discountPrice) / product.price) * 100,
         )
       : 0;
+  const isWishlisted = useMemo(() => {
+    return wishlistItems.some((item) => item._id === product._id);
+  }, [wishlistItems, product._id]);
 
   useEffect(() => {
     if (!isHovering || !product.images || product.images.length <= 1) {
@@ -28,6 +42,21 @@ const ProductCard = ({ product }) => {
   const imageUrl = product.images?.[currentImage]?.startsWith("http")
     ? product.images[currentImage]
     : null;
+
+  const handleWishlistClick = async (e) => {
+    e.stopPropagation();
+
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+
+    const resultAction = await dispatch(toggleWishlistItem(product._id));
+
+    if (toggleWishlistItem.fulfilled.match(resultAction)) {
+      dispatch(fetchWishlist());
+    }
+  };
 
   return (
     <div
@@ -49,7 +78,6 @@ const ProductCard = ({ product }) => {
             Product Image
           </div>
         )}
-      
 
         {/* Rating Badge */}
 
@@ -66,84 +94,88 @@ const ProductCard = ({ product }) => {
       {/* Product Info */}
 
       <div className="p-3 h-30 flex flex-col justify-between">
-  {!isHovering ? (
-    <>
-      <h3 className="font-bold text-sm uppercase truncate">
-        {product.brand}
-      </h3>
-
-      <p className="text-sm text-gray-500 truncate mt-1">
-        {product.name}
-      </p>
-
-      <div className="mt-2 flex items-center gap-2 flex-wrap">
-        <span className="font-bold text-sm">
-          ₹
-          {product.discountPrice > 0
-            ? product.discountPrice
-            : product.price}
-        </span>
-
-        {product.discountPrice > 0 && (
+        {!isHovering ? (
           <>
-            <span className="text-gray-400 line-through text-xs">
-              ₹{product.price}
-            </span>
+            <h3 className="font-bold text-sm uppercase truncate">
+              {product.brand}
+            </h3>
 
-            <span className="text-orange-500 text-xs font-semibold">
-              {discountPercentage}% OFF
-            </span>
+            <p className="text-sm text-gray-500 truncate mt-1">
+              {product.name}
+            </p>
+
+            <div className="mt-2 flex items-center gap-2 flex-wrap">
+              <span className="font-bold text-sm">
+                ₹
+                {product.discountPrice > 0
+                  ? product.discountPrice
+                  : product.price}
+              </span>
+
+              {product.discountPrice > 0 && (
+                <>
+                  <span className="text-gray-400 line-through text-xs">
+                    ₹{product.price}
+                  </span>
+
+                  <span className="text-orange-500 text-xs font-semibold">
+                    {discountPercentage}% OFF
+                  </span>
+                </>
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Wishlist Button */}
+
+            <button
+              type="button"
+              onClick={handleWishlistClick}
+              className={`w-full border py-2 flex items-center justify-center gap-2 font-semibold text-sm transition ${
+                isWishlisted
+                  ? "border-pink-500 text-pink-600 bg-pink-50"
+                  : "border-gray-300 hover:border-gray-500"
+              }`}
+            >
+              <FiHeart size={18} />
+              {isWishlisted ? "WISHLISTED" : "WISHLIST"}
+            </button>
+
+            {/* Sizes */}
+
+            {product.sizes?.length > 0 && (
+              <div className="mt-4 text-sm">
+                <span className="font-medium">Sizes:</span>{" "}
+                {product.sizes.join("  ")}
+              </div>
+            )}
+
+            {/* Price */}
+
+            <div className="mt-3 flex items-center gap-2 flex-wrap">
+              <span className="font-bold text-sm">
+                ₹
+                {product.discountPrice > 0
+                  ? product.discountPrice
+                  : product.price}
+              </span>
+
+              {product.discountPrice > 0 && (
+                <>
+                  <span className="text-gray-400 line-through text-xs">
+                    ₹{product.price}
+                  </span>
+
+                  <span className="text-orange-500 text-xs font-semibold">
+                    {discountPercentage}% OFF
+                  </span>
+                </>
+              )}
+            </div>
           </>
         )}
       </div>
-    </>
-  ) : (
-    <>
-      {/* Wishlist Button */}
-
-      <button
-        className="w-full border border-gray-300 py-2 flex items-center justify-center gap-2 font-semibold text-sm hover:border-gray-500 transition"
-      >
-        <FiHeart size={18} />
-        WISHLIST
-      </button>
-
-      {/* Sizes */}
-
-      {product.sizes?.length > 0 && (
-        <div className="mt-4 text-sm">
-          <span className="font-medium">
-            Sizes:
-          </span>{" "}
-          {product.sizes.join("  ")}
-        </div>
-      )}
-
-      {/* Price */}
-
-      <div className="mt-3 flex items-center gap-2 flex-wrap">
-        <span className="font-bold text-sm">
-          ₹
-          {product.discountPrice > 0
-            ? product.discountPrice
-            : product.price}
-        </span>
-
-        {product.discountPrice > 0 && (
-          <>
-            <span className="text-gray-400 line-through text-xs">
-              ₹{product.price}
-            </span>
-
-            <span className="text-orange-500 text-xs font-semibold">
-              {discountPercentage}% OFF
-            </span>
-          </>
-        )}
-      </div>
-    </>
-  )}
-</div>
     </div>
   );
 };
