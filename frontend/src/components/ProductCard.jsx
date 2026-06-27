@@ -2,10 +2,8 @@ import { useEffect, useState, useMemo } from "react";
 import { FiStar, FiHeart } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import {
-  fetchWishlist,
-  toggleWishlistItem,
-} from "../store/slices/wishlistThunks";
+import {fetchWishlist,toggleWishlistItem,} from "../store/slices/wishlistThunks";
+import { addToCart, fetchCart } from "../store/slices/cartThunks";
 
 const ProductCard = ({ product }) => {
   const [currentImage, setCurrentImage] = useState(0);
@@ -57,6 +55,28 @@ const ProductCard = ({ product }) => {
       dispatch(fetchWishlist());
     }
   };
+
+const handleAddToBag = async (e) => {
+  e.stopPropagation();
+
+  if (!isAuthenticated) {
+    navigate("/login");
+    return;
+  }
+
+  const resultAction = await dispatch(
+    addToCart({
+      productId: product._id,
+      quantity: 1,
+      size: product.sizes?.[0] || null,
+      color: product.colors?.[0] || null,
+    })
+  );
+
+  if (addToCart.fulfilled.match(resultAction)) {
+    dispatch(fetchCart());
+  }
+};
 
   return (
     <div

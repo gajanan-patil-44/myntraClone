@@ -4,21 +4,30 @@ import { navbarCategories } from "../constants/navbarCategories";
 import myntraLogo from "../assets/myntraLogo.jpg";
 
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useRef } from "react";
 import { logoutUser } from "../store/slices/authThunks";
+import { fetchCart } from "../store/slices/cartThunks";
 import { fetchWishlist } from "../store/slices/wishlistThunks";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const [activeCategory, setActiveCategory] = useState(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef(null);
 
   const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { totalItems } = useSelector((state) => state.cart);
   const { items: wishlistItems } = useSelector((state) => state.wishlist);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchCart());
+      dispatch(fetchWishlist());
+    }
+  }, [dispatch, isAuthenticated]);
 
   const handleProfileClick = () => {
     if (!isAuthenticated) {
@@ -38,21 +47,6 @@ const Navbar = () => {
     }
   };
 
-  const handleMyProfile = () => {
-    setIsProfileMenuOpen(false);
-    // Navigate to the profile page leter
-    navigate("/");
-  };
-
-  const handleWishlistClick = () => {
-    if (!isAuthenticated) {
-      navigate("/login");
-      return;
-    }
-
-    navigate("/wishlist");
-  };
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -69,12 +63,6 @@ const Navbar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(fetchWishlist());
-    }
-  }, [dispatch, isAuthenticated]);
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)] z-50">
@@ -93,7 +81,6 @@ const Navbar = () => {
           {Object.keys(categories).map((category) => (
             <Link to={`/products/${category}`} key={category}>
               <li
-                key={category}
                 className={`cursor-pointer h-full flex items-center border-b-4 transition-colors ${
                   activeCategory === category
                     ? "border-orange-400"
@@ -125,6 +112,7 @@ const Navbar = () => {
 
         {/* Actions */}
         <div className="flex items-center gap-5">
+          {/* Profile */}
           <div className="relative" ref={profileMenuRef}>
             <div
               className="flex flex-col items-center text-xs font-medium cursor-pointer"
@@ -138,14 +126,6 @@ const Navbar = () => {
 
             {isAuthenticated && isProfileMenuOpen && (
               <div className="absolute top-12 right-0 w-44 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
-                {/* <button
-        type="button"
-        onClick={handleMyProfile}
-        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-      >
-        My Profile
-      </button> */}
-
                 <button
                   type="button"
                   onClick={handleLogout}
@@ -157,23 +137,34 @@ const Navbar = () => {
             )}
           </div>
 
+          {/* Wishlist */}
           <div
             className="relative flex flex-col items-center text-xs font-medium cursor-pointer"
-            onClick={handleWishlistClick}
+            onClick={() => navigate("/wishlist")}
           >
-            <FiHeart size={20} />
-            <span>Wishlist</span>
-
-            {isAuthenticated && wishlistItems.length > 0 && (
-              <span className="absolute -top-2 left-5 min-w-[18px] h-[18px] px-1 rounded-full bg-pink-500 text-white text-[10px] flex items-center justify-center font-semibold">
+            {wishlistItems.length > 0 && (
+              <span className="absolute -top-2 right-0 bg-pink-500 text-white text-[10px] min-w-4 h-4 px-1 rounded-full flex items-center justify-center">
                 {wishlistItems.length}
               </span>
             )}
+
+            <FiHeart size={20} />
+            <span>Wishlist</span>
           </div>
 
-          <div className="flex flex-col items-center text-xs font-medium cursor-pointer">
+          {/* Cart */}
+          <div
+            className="relative flex flex-col items-center text-xs font-medium cursor-pointer"
+            onClick={() => navigate("/cart")}
+          >
+            {totalItems > 0 && (
+              <span className="absolute -top-2 right-1 bg-pink-500 text-white text-[10px] min-w-4 h-4 px-1 rounded-full flex items-center justify-center">
+                {totalItems}
+              </span>
+            )}
+
             <FiShoppingBag size={20} />
-            <span>Cart</span>
+            <span>Bag</span>
           </div>
         </div>
       </nav>
@@ -214,7 +205,7 @@ const Navbar = () => {
                       ))}
                     </ul>
                   </div>
-                ),
+                )
               )}
             </div>
           </div>
