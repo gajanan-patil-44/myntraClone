@@ -11,6 +11,7 @@ import orderRoute from "./src/routes/orderRoute.js";
 import wishlistRoute from "./src/routes/wishlistRoute.js";
 
 import authRoute from "./src/routes/authRoute.js";
+import reviewRoute from "./src/routes/reviewRoute.js";
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use("/api/orders", orderRoute);
 app.use("/api", wishlistRoute);
 
 app.use("/api/auth", authRoute);
+app.use("/api/reviews", reviewRoute);
 
 app.get("/", (req, res) => {
   res.json({
