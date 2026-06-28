@@ -215,6 +215,7 @@ export const getAddresses = async (req, res) => {
 };
 // ADD NEW ADDRESS
 export const addAddress = async (req, res) => {
+  console.log("🔥 ADD ADDRESS HIT");
   try {
     const user = await User.findById(req.user._id);
 
@@ -229,8 +230,8 @@ export const addAddress = async (req, res) => {
       fullName,
       phone,
       pincode,
-      house,
-      area,
+       locality,
+  address,
       city,
       state,
       addressType,
@@ -242,8 +243,8 @@ export const addAddress = async (req, res) => {
       !fullName ||
       !phone ||
       !pincode ||
-      !house ||
-      !area ||
+      !locality ||
+      !address ||
       !city ||
       !state
     ) {
@@ -280,8 +281,8 @@ export const addAddress = async (req, res) => {
       fullName,
       phone,
       pincode,
-      house,
-      area,
+      locality,
+      address,
       city,
       state,
       addressType,
@@ -302,7 +303,9 @@ export const addAddress = async (req, res) => {
     });
   }
 };
+
 // UPDATE ADDRESS
+
 export const updateAddress = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
@@ -316,9 +319,9 @@ export const updateAddress = async (req, res) => {
 
     const { addressId } = req.params;
 
-    const address = user.addresses.id(addressId);
+    const addressDoc = user.addresses.id(addressId);
 
-    if (!address) {
+    if (!addressDoc) {
       return res.status(404).json({
         success: false,
         message: "Address not found",
@@ -329,8 +332,8 @@ export const updateAddress = async (req, res) => {
       fullName,
       phone,
       pincode,
-      house,
-      area,
+      locality,
+      address,
       city,
       state,
       addressType,
@@ -358,15 +361,15 @@ export const updateAddress = async (req, res) => {
       });
     }
 
-    if (fullName !== undefined) address.fullName = fullName;
-    if (phone !== undefined) address.phone = phone;
-    if (pincode !== undefined) address.pincode = pincode;
-    if (house !== undefined) address.house = house;
-    if (area !== undefined) address.area = area;
-    if (city !== undefined) address.city = city;
-    if (state !== undefined) address.state = state;
-    if (addressType !== undefined) address.addressType = addressType;
-    if (isDefault !== undefined) address.isDefault = isDefault;
+    if (fullName !== undefined) addressDoc.fullName = fullName;
+    if (phone !== undefined) addressDoc.phone = phone;
+    if (pincode !== undefined) addressDoc.pincode = pincode;
+    if (locality !== undefined) addressDoc.locality = locality;
+    if (address !== undefined) addressDoc.address = address;
+    if (city !== undefined) addressDoc.city = city;
+    if (state !== undefined) addressDoc.state = state;
+    if (addressType !== undefined) addressDoc.addressType = addressType;
+    if (isDefault !== undefined) addressDoc.isDefault = isDefault;
 
     await user.save();
 
@@ -382,6 +385,8 @@ export const updateAddress = async (req, res) => {
     });
   }
 };
+
+
 // DELETE ADDRESS
 export const deleteAddress = async (req, res) => {
   try {

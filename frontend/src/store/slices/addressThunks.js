@@ -7,7 +7,7 @@ export const fetchAddresses = createAsyncThunk(
   "address/fetchAddresses",
   async (_, thunkAPI) => {
     try {
-      const response = await api.get("/user/addresses");
+      const response = await api.get("/users/addresses");
       return response.data.addresses;
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -22,13 +22,22 @@ export const fetchAddresses = createAsyncThunk(
 export const addAddress = createAsyncThunk(
   "address/addAddress",
   async (addressData, thunkAPI) => {
+    console.log("1. Thunk started");
+    console.log("2. addressData:", addressData);
+
     try {
-      const response = await api.post("/user/addresses", addressData);
+      console.log("3. About to call API");
+
+      const response = await api.post("/users/addresses", addressData);
+
+      console.log("4. API returned:", response);
 
       await thunkAPI.dispatch(fetchAddresses());
 
       return response.data;
     } catch (error) {
+      console.log("5. API error:", error);
+
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to add address."
       );
@@ -43,7 +52,7 @@ export const updateAddress = createAsyncThunk(
   async ({ addressId, addressData }, thunkAPI) => {
     try {
       const response = await api.patch(
-        `/user/addresses/${addressId}`,
+        `/users/addresses/${addressId}`,
         addressData
       );
 
@@ -64,7 +73,7 @@ export const deleteAddress = createAsyncThunk(
   "address/deleteAddress",
   async (addressId, thunkAPI) => {
     try {
-      const response = await api.delete(`/user/addresses/${addressId}`);
+      const response = await api.delete(`/users/addresses/${addressId}`);
 
       await thunkAPI.dispatch(fetchAddresses());
 

@@ -16,6 +16,7 @@ const CartPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+
   const { isAuthenticated } = useSelector((state) => state.auth);
   const { items, loading, error } = useSelector((state) => state.cart);
 
@@ -25,6 +26,10 @@ const CartPage = () => {
   const [sizeModalItem, setSizeModalItem] = useState(null);
   const [selectedSize, setSelectedSize] = useState("");
   const [actionLoadingId, setActionLoadingId] = useState(null);
+
+  const handlePlaceOrder = () => {
+  navigate("/address");
+};
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -502,8 +507,9 @@ const CartPage = () => {
                     </div>
 
                     <button
+                    onClick={handlePlaceOrder}
                       type="button"
-                      className="w-full mt-5 bg-[#ff3f6c] text-white font-bold py-3 rounded-[4px] text-[14px]"
+                      className=" w-full mt-5 bg-[#ff3f6c] text-white font-bold py-3 rounded-[4px] text-[14px]"
                     >
                       PLACE ORDER
                     </button>

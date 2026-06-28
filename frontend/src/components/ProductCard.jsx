@@ -78,9 +78,14 @@ const handleAddToBag = async (e) => {
   }
 };
 
+const handleProductClick = () => {
+  navigate(`/product/${product._id}`);
+};
+
   return (
     <div
       className="cursor-pointer bg-white transition-all duration-300 hover:shadow-lg"
+      onClick={handleProductClick}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
