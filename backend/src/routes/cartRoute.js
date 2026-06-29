@@ -1,5 +1,5 @@
 import express from "express";
-import { addToCart,getCart,updateCartQuantity,removeCartItem } from "../controllers/cartController.js";
+import { addToCart,getCart,updateCartQuantity,removeCartItem,updateCartItemVariant } from "../controllers/cartController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -12,6 +12,9 @@ router.get("/", authMiddleware, getCart);
 
 // UPDATE CART QUANTITY
 router.patch("/:cartItemId", authMiddleware, updateCartQuantity)
+
+// UPDATE CART ITEM VARIANT (SIZE / COLOR)
+router.patch("/:cartItemId/variant",authMiddleware,updateCartItemVariant);
 
 // REMOVE CART ITEM
 router.delete("/:cartItemId", authMiddleware, removeCartItem,);
