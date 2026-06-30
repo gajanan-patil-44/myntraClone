@@ -509,7 +509,7 @@ const CartPage = () => {
                     <button
                     onClick={handlePlaceOrder}
                       type="button"
-                      className=" w-full mt-5 bg-[#ff3f6c] text-white font-bold py-3 rounded-[4px] text-[14px]"
+                      className=" cursor-pointer w-full mt-5 bg-[#ff3f6c] text-white font-bold py-3 rounded-[4px] text-[14px]"
                     >
                       PLACE ORDER
                     </button>

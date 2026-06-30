@@ -49,30 +49,61 @@ const orderSchema = new mongoose.Schema(
     ],
 
     shippingAddress: {
-      street: {
-        type: String,
-        required: true,
-      },
+  fullName: {
+    type: String,
+    required: true,
+  },
 
-      city: {
-        type: String,
-        required: true,
-      },
+  phone: {
+    type: String,
+    required: true,
+  },
 
-      state: {
-        type: String,
-        required: true,
-      },
+  pincode: {
+    type: String,
+    required: true,
+  },
 
-      pincode: {
-        type: String,
-        required: true,
-      },
-    },
+  locality: {
+    type: String,
+    required: true,
+  },
+
+  address: {
+    type: String,
+    required: true,
+  },
+
+  city: {
+    type: String,
+    required: true,
+  },
+
+  state: {
+    type: String,
+    required: true,
+  },
+
+  landmark: {
+    type: String,
+    default: "",
+  },
+
+  alternatePhone: {
+    type: String,
+    default: "",
+  },
+
+  addressType: {
+    type: String,
+    enum: ["Home", "Work"],
+  },
+},
 
     paymentMethod: {
       type: String,
-      default: "Razorpay",
+      enum: ["COD", "Razorpay"],
+      default: "COD",
     },
 
     paymentStatus: {

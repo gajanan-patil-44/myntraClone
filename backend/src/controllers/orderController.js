@@ -8,6 +8,7 @@ import User from "../models/User.js";
 export const createOrder = async (req, res) => {
   try {
     const userId = req.user._id;
+    const { addressId, paymentMethod } = req.body;
 
     const user = await User.findById(userId);
 
@@ -18,7 +19,7 @@ export const createOrder = async (req, res) => {
     const cartItems = user.cartItems;
     // const cartItems = user.cartItems.map(item => item.toObject());
     console.log("USER ID:", user._id);
-console.log("CART ITEMS FROM DB:", user.cartItems);
+    console.log("CART ITEMS FROM DB:", user.cartItems);
 
     if (!cartItems || cartItems.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
@@ -43,7 +44,8 @@ console.log("CART ITEMS FROM DB:", user.cartItems);
         });
       }
 
-      const price = product.discountPrice > 0 ? product.discountPrice : product.price;
+      const price =
+        product.discountPrice > 0 ? product.discountPrice : product.price;
 
       subtotal += price * item.quantity;
 
@@ -63,11 +65,12 @@ console.log("CART ITEMS FROM DB:", user.cartItems);
     }
 
     // 2. Address validation
-    const address = user.address;
+    const address = user.addresses.id(addressId);
 
-    if (!address || !address.street || !address.city || !address.state || !address.pincode) {
-      return res.status(400).json({
-        message: "Shipping address incomplete",
+    if (!address) {
+      return res.status(404).json({
+        success: false,
+        message: "Address not found",
       });
     }
 
@@ -79,14 +82,25 @@ console.log("CART ITEMS FROM DB:", user.cartItems);
     const order = await Order.create({
       userId,
       orderItems,
-      shippingAddress: address,
+      shippingAddress: {
+        fullName: address.fullName,
+        phone: address.phone,
+        pincode: address.pincode,
+        locality: address.locality,
+        address: address.address,
+        city: address.city,
+        state: address.state,
+        landmark: address.landmark,
+        alternatePhone: address.alternatePhone,
+        addressType: address.addressType,
+      },
       subtotal,
       taxPrice,
       shippingPrice,
       totalPrice,
-      paymentMethod: "COD",
+      paymentMethod: paymentMethod || "COD",
       paymentStatus: "pending",
-      orderStatus: "processing",
+      orderStatus: "pending",
     });
 
     // 4. Clear cart
@@ -105,7 +119,9 @@ console.log("CART ITEMS FROM DB:", user.cartItems);
 };
 
 export const getMyOrders = async (req, res) => {
-  const orders = await Order.find({ userId: req.user.id }).sort({ createdAt: -1 });
+  const orders = await Order.find({ userId: req.user.id }).sort({
+    createdAt: -1,
+  });
 
   res.json({ success: true, orders });
 };

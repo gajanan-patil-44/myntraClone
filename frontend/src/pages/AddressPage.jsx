@@ -6,6 +6,7 @@ import AddressList from "../components/checkout/AddressList";
 import AddressModal from "../components/checkout/AddressModal";
 import DeleteAddressModal from "../components/checkout/DeleteAddressModal";
 import PriceDetails from "../components/checkout/PriceDetails";
+import { useNavigate } from "react-router-dom";
 
 import {
   fetchAddresses,
@@ -16,12 +17,11 @@ import {
 
 const AddressPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const {
-    addresses,
-    loading,
-    actionLoading,
-  } = useSelector((state) => state.address);
+  const { addresses, loading, actionLoading } = useSelector(
+    (state) => state.address,
+  );
 
   const [selectedAddressId, setSelectedAddressId] = useState(null);
 
@@ -38,8 +38,7 @@ const AddressPage = () => {
   useEffect(() => {
     if (!addresses.length || selectedAddressId) return;
 
-    const defaultAddress =
-      addresses.find((a) => a.isDefault) || addresses[0];
+    const defaultAddress = addresses.find((a) => a.isDefault) || addresses[0];
 
     setSelectedAddressId(defaultAddress._id);
   }, [addresses, selectedAddressId]);
@@ -80,11 +79,11 @@ const AddressPage = () => {
         updateAddress({
           addressId: editingAddress._id,
           addressData: formData,
-        })
+        }),
       );
     } else {
       const result = await dispatch(addAddress(formData));
-console.log("ADD ADDRESS RESPONSE:", result);
+      // console.log("ADD ADDRESS RESPONSE:", result);
     }
 
     setShowAddressModal(false);
@@ -93,21 +92,25 @@ console.log("ADD ADDRESS RESPONSE:", result);
 
   // ---------------- DELIVER ----------------
 
-  const handleDeliver = (address) => {
-    console.log("Selected Address:", address);
+  const handleContinueToPayment = () => {
+  if (!selectedAddressId) {
+    alert("Please select a delivery address.");
+    return;
+  }
 
-    // Payment page navigation later
-  };
+  navigate("/payment", {
+    state: {
+      addressId: selectedAddressId,
+    },
+  });
+};
 
   return (
     <div className="min-h-screen bg-[#fff]">
-
       <CheckoutHeader step="address" />
 
       <div className="max-w-[1100px] mx-auto py-8 px-4">
-
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
-
           {/* LEFT */}
 
           <AddressList
@@ -116,15 +119,13 @@ console.log("ADD ADDRESS RESPONSE:", result);
             onAddAddress={handleAddAddress}
             onEditAddress={handleEditAddress}
             onDeleteAddress={handleDeleteClick}
-            onDeliver={handleDeliver}
           />
 
           {/* RIGHT */}
 
-          <PriceDetails buttonText="CONTINUE" />
-
+          <PriceDetails buttonText="CONTINUE TO PAYMENT"
+          onButtonClick={handleContinueToPayment} />
         </div>
-
       </div>
 
       {/* Address Modal */}
@@ -148,7 +149,6 @@ console.log("ADD ADDRESS RESPONSE:", result);
         onClose={() => setDeleteAddressData(null)}
         onConfirm={handleDeleteConfirm}
       />
-
     </div>
   );
 };
