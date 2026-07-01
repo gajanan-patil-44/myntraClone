@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -18,16 +18,46 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 import { fetchMyOrders } from "../store/slices/orderThunks";
+import StarRating from "../components/review/StarRating";
+import {
+  updateRating,
+  saveReview,
+  fetchMyReviews,
+} from "../store/slices/reviewThunks";
+import ReviewModal from "../components/review/ReviewModal";
 
 const MyOrdersPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { orders, loading, error } = useSelector((state) => state.order);
+  const {
+    ratings,
+    reviews,
+    loading: reviewLoading,
+  } = useSelector((state) => state.review);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     dispatch(fetchMyOrders());
+    dispatch(fetchMyReviews());
   }, [dispatch]);
+
+  const handleSubmitReview = async ({ rating, comment }) => {
+    await dispatch(
+      saveReview({
+        productId: selectedProduct.productId,
+        rating,
+        comment,
+      }),
+    );
+
+    setShowReviewModal(false);
+
+    setSelectedProduct(null);
+  };
 
   // =========================
   // Status Helpers
@@ -394,6 +424,18 @@ const MyOrdersPage = () => {
                                   Color: {firstItem.color}
                                 </p>
                               )}
+                              {order.orderItems.length > 1 && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/orders/${order._id}`);
+                                  }}
+                                  className="mt-2 text-[13px] font-medium text-[#ff3f6c] hover:underline"
+                                >
+                                  + {order.orderItems.length - 1} more item
+                                  {order.orderItems.length > 2 ? "s" : ""}
+                                </button>
+                              )}
 
                               <p className="mt-3 text-[13px] text-[#94969f]">
                                 Exchange / Return available as per policy
@@ -409,18 +451,17 @@ const MyOrdersPage = () => {
 
                       <div className="bg-[#fbf3fb] border-t border-[#f1e6f1] px-6 py-4 flex items-center justify-between">
                         <div>
-                          <div className="flex gap-1">
-                            {[1, 2, 3, 4].map((i) => (
-                              <Star
-                                key={i}
-                                size={18}
-                                fill="#ff3f6c"
-                                className="text-[#ff3f6c]"
-                              />
-                            ))}
-
-                            <Star size={18} className="text-[#c7c7c7]" />
-                          </div>
+                          <StarRating
+                            value={ratings[firstItem.productId] || 0}
+                            onChange={(rating) => {
+                              dispatch(
+                                updateRating({
+                                  productId: firstItem.productId,
+                                  rating,
+                                }),
+                              );
+                            }}
+                          />
 
                           <p className="mt-2 text-[13px] text-[#696b79]">
                             Review & get a chance to win MynCash!
@@ -430,11 +471,20 @@ const MyOrdersPage = () => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/products/${firstItem.productId}`);
+
+                            setSelectedProduct({
+                              ...firstItem,
+                              existingReview:
+                                reviews[firstItem.productId] || null,
+                            });
+
+                            setShowReviewModal(true);
                           }}
                           className="text-[#ff3f6c] font-semibold text-[14px] hover:underline"
                         >
-                          Write Review
+                          {ratings[firstItem.productId]
+                            ? "Edit Review"
+                            : "Write Review"}
                         </button>
                       </div>
                     </div>
@@ -447,6 +497,16 @@ const MyOrdersPage = () => {
       </div>
 
       <Footer />
+      <ReviewModal
+        open={showReviewModal}
+        onClose={() => {
+          setShowReviewModal(false);
+          setSelectedProduct(null);
+        }}
+        product={selectedProduct}
+        loading={reviewLoading}
+        onSubmit={handleSubmitReview}
+      />
     </>
   );
 };

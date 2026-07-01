@@ -125,16 +125,33 @@ const Navbar = () => {
             </div>
 
             {isAuthenticated && isProfileMenuOpen && (
-              <div className="absolute top-12 right-0 w-44 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
+  <div className="absolute top-12 right-0 w-52 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
+    <div className="px-4 pb-3 border-b border-gray-100">
+      <p className="font-semibold text-[#282c3f]">
+        Hi, {user?.firstName}
+      </p>
+    </div>
+
+    <button
+      type="button"
+      onClick={() => {
+        navigate("/orders");
+        setIsProfileMenuOpen(false);
+      }}
+      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+    >
+      My Orders
+    </button>
+
+    <button
+      type="button"
+      onClick={handleLogout}
+      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+    >
+      Logout
+    </button>
+  </div>
+)}
           </div>
 
           {/* Wishlist */}

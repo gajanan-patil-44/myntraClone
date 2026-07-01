@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import bannerMenSale from "../assets/banners/banner-men-sale.jpg";
 import bannerWomenSale from "../assets/banners/banner-women-sale.jpg";
@@ -6,8 +7,10 @@ import bannerElectronicsSale from "../assets/banners/banner-electronics-sale.jpg
 
 import categoryPlaceholder from "../assets/categories/category-placeholder.jpg";
 import { categories } from "../constants/categories";
+import api from "../api/axios";
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const banners = [
     {
       image: bannerMenSale,
@@ -23,16 +26,41 @@ const HomePage = () => {
     },
   ];
 
-  const shopCategories = Object.entries(categories).flatMap(
-  ([category, subcategories]) =>
-    subcategories.map((subcategory) => ({
-      category,
-      subcategory,
-      image: categoryPlaceholder,
-    }))
-);
+
 
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      const response = await api.get("/products");
+      setProducts(response.data.products);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchProducts();
+}, []);
+const shopCategories = Object.entries(categories).flatMap(
+  ([category, subcategories]) =>
+    subcategories.map((subcategory) => {
+      const firstProduct = products.find(
+        (product) =>
+          product.category === category &&
+          product.subCategory === subcategory
+      );
+      console.log(category, subcategory, firstProduct);
+
+      return {
+        category,
+        subcategory,
+        image:
+          firstProduct?.images?.[0] || categoryPlaceholder,
+      };
+    })
+);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -58,10 +86,9 @@ const HomePage = () => {
             <div
               key={banner.category}
               className="min-w-full cursor-pointer"
-              onClick={() => {
-                // TODO:
-                // navigate(`/products?category=${banner.category}`)
-              }}
+              onClick={() =>
+  navigate(`/products/${encodeURIComponent(banner.category)}`)
+}
             >
               <img
                 src={banner.image}
@@ -84,12 +111,11 @@ const HomePage = () => {
       <div
         key={`${item.category}-${item.subcategory}`}
         className="cursor-pointer group"
-        onClick={() => {
-          // TODO:
-          // navigate(
-          // `/products?category=${item.category}&subcategory=${item.subcategory}`
-          // );
-        }}
+        onClick={() =>
+  navigate(
+  `/products/${encodeURIComponent(item.category)}/${encodeURIComponent(item.subcategory)}`
+)
+}
       >
         <div className="overflow-hidden rounded-lg border-[5px] border-solid border-orange-300">
           <img
