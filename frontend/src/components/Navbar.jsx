@@ -65,14 +65,14 @@ const Navbar = () => {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)] z-50">
-      <nav className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-6">
+    <header className="fixed top-0 left-0 right-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)] z-50 ">
+      <nav className="max-w-7xl   h-[80px] flex items-center justify-between px-4 md:px-8 mx-auto">
         {/* Logo */}
         <Link to="/">
           <img
             src={myntraLogo}
             alt="Myntra Logo"
-            className="h-16 w-auto cursor-pointer"
+            className="h-[90px] w-auto cursor-pointer mb-2"
           />
         </Link>
 
@@ -125,33 +125,33 @@ const Navbar = () => {
             </div>
 
             {isAuthenticated && isProfileMenuOpen && (
-  <div className="absolute top-12 right-0 w-52 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
-    <div className="px-4 pb-3 border-b border-gray-100">
-      <p className="font-semibold text-[#282c3f]">
-        Hi, {user?.firstName}
-      </p>
-    </div>
+              <div className="absolute top-12 right-0 w-52 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
+                <div className="px-4 pb-3 border-b border-gray-100">
+                  <p className="font-semibold text-[#282c3f]">
+                    Hi, {user?.firstName}
+                  </p>
+                </div>
 
-    <button
-      type="button"
-      onClick={() => {
-        navigate("/orders");
-        setIsProfileMenuOpen(false);
-      }}
-      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-    >
-      My Orders
-    </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigate("/orders");
+                    setIsProfileMenuOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                >
+                  My Orders
+                </button>
 
-    <button
-      type="button"
-      onClick={handleLogout}
-      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-    >
-      Logout
-    </button>
-  </div>
-)}
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Wishlist */}
@@ -198,6 +198,7 @@ const Navbar = () => {
       {activeCategory && (
         <div
           className="absolute top-full left-44 right-80 bg-white shadow-xl z-50"
+          onMouseEnter={() => setActiveCategory(activeCategory)}
           onMouseLeave={() => setActiveCategory(null)}
         >
           <div className="max-w-5xl mx-auto px-12 py-10">
@@ -222,7 +223,7 @@ const Navbar = () => {
                       ))}
                     </ul>
                   </div>
-                )
+                ),
               )}
             </div>
           </div>
