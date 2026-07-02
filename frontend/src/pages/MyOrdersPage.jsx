@@ -449,7 +449,7 @@ const MyOrdersPage = () => {
 
                       {/* Review */}
 
-                      <div className="bg-[#fbf3fb] border-t border-[#f1e6f1] px-6 py-4 flex items-center justify-between">
+                      {/* <div className="bg-[#fbf3fb] border-t border-[#f1e6f1] px-6 py-4 flex items-center justify-between">
                         <div>
                           <StarRating
                             value={ratings[firstItem.productId] || 0}
@@ -486,7 +486,7 @@ const MyOrdersPage = () => {
                             ? "Edit Review"
                             : "Write Review"}
                         </button>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 );

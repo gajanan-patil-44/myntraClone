@@ -45,60 +45,70 @@ const orderSchema = new mongoose.Schema(
           type: String,
           default: null,
         },
+        orderStatus: {
+          type: String,
+          enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
+          default: "pending",
+        },
+
+        deliveredAt: {
+          type: Date,
+          default: null,
+        },
       },
     ],
 
     shippingAddress: {
-  fullName: {
-    type: String,
-    required: true,
-  },
+      fullName: {
+        type: String,
+        required: true,
+      },
 
-  phone: {
-    type: String,
-    required: true,
-  },
+      phone: {
+        type: String,
+        required: true,
+      },
 
-  pincode: {
-    type: String,
-    required: true,
-  },
+      pincode: {
+        type: String,
+        required: true,
+      },
 
-  locality: {
-    type: String,
-    required: true,
-  },
+      locality: {
+        type: String,
+        required: true,
+      },
 
-  address: {
-    type: String,
-    required: true,
-  },
+      address: {
+        type: String,
+        required: true,
+      },
 
-  city: {
-    type: String,
-    required: true,
-  },
+      city: {
+        type: String,
+        required: true,
+      },
 
-  state: {
-    type: String,
-    required: true,
-  },
+      state: {
+        type: String,
+        required: true,
+      },
 
-  landmark: {
-    type: String,
-    default: "",
-  },
+      landmark: {
+        type: String,
+        default: "",
+      },
 
-  alternatePhone: {
-    type: String,
-    default: "",
-  },
+      alternatePhone: {
+        type: String,
+        default: "",
+      },
 
-  addressType: {
-    type: String,
-    enum: ["Home", "Work"],
-  },
-},
+      addressType: {
+        type: String,
+        enum: ["Home", "Work"],
+      },
+    },
 
     paymentMethod: {
       type: String,
@@ -114,13 +124,7 @@ const orderSchema = new mongoose.Schema(
 
     orderStatus: {
       type: String,
-      enum: [
-        "pending",
-        "processing",
-        "shipped",
-        "delivered",
-        "cancelled",
-      ],
+      enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
       default: "pending",
     },
 
@@ -154,7 +158,7 @@ const orderSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Order = mongoose.model("Order", orderSchema);

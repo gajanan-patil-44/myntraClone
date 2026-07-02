@@ -57,6 +57,8 @@ export const createOrder = async (req, res) => {
         quantity: item.quantity,
         size: item.size,
         color: item.color,
+        orderStatus: "pending",
+        deliveredAt: null,
       });
 
       // reduce stock immediately (reservation logic)
