@@ -6,6 +6,7 @@ import { fetchOrderById } from "../store/slices/orderThunks";
 
 import StarRating from "../components/review/StarRating";
 import ReviewModal from "../components/review/ReviewModal";
+import OrderItemTracker from "../components/orders/OrderItemTracker";
 
 import {
   fetchMyReviews,
@@ -92,22 +93,22 @@ const OrderDetailsPage = () => {
 
         <div className="border border-[#eaeaec] rounded-lg bg-white p-6">
           {allSameStatus && (
-  <div className="flex items-center gap-3">
-    <div
-      className={`w-3 h-3 rounded-full ${
-        orderStatuses[0] === "delivered"
-          ? "bg-green-500"
-          : orderStatuses[0] === "cancelled"
-            ? "bg-red-500"
-            : "bg-orange-500"
-      }`}
-    />
+            <div className="flex items-center gap-3">
+              <div
+                className={`w-3 h-3 rounded-full ${
+                  orderStatuses[0] === "delivered"
+                    ? "bg-green-500"
+                    : orderStatuses[0] === "cancelled"
+                      ? "bg-red-500"
+                      : "bg-orange-500"
+                }`}
+              />
 
-    <h2 className="text-xl font-semibold capitalize text-[#282c3f]">
-      {orderStatuses[0]}
-    </h2>
-  </div>
-)}
+              <h2 className="text-xl font-semibold capitalize text-[#282c3f]">
+                {orderStatuses[0]}
+              </h2>
+            </div>
+          )}
 
           <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
@@ -148,7 +149,6 @@ const OrderDetailsPage = () => {
                     alt={item.name}
                     className="w-28 h-36 object-cover rounded"
                   />
-
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-[#282c3f]">
                       {item.name}
@@ -165,6 +165,11 @@ const OrderDetailsPage = () => {
                     <p className="mt-3 font-semibold text-lg">
                       ₹{item.priceAtPurchase}
                     </p>
+                    {/* // status tracker component */}
+                    <OrderItemTracker
+                      status={item.orderStatus}
+                      deliveredAt={item.deliveredAt}
+                    />
 
                     {/* Review Section */}
                     {item.orderStatus === "delivered" && (
