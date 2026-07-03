@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import api from "../api/axios";
 import ProductCard from "../components/ProductCard";
 import { useParams } from "react-router-dom";
+import { Range, getTrackBackground } from "react-range";
+import BrandFilterModal from "../components/BrandFilterModal";
+import CategoryFilterModal from "../components/CategoryFilterModal";
 
 const ProductsPage = () => {
   const { category, subCategory } = useParams();
@@ -10,6 +13,15 @@ const ProductsPage = () => {
   const [selectedSubCategories, setSelectedSubCategories] = useState([]);
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
+  const [showBrandModal, setShowBrandModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+
+  const [priceRange, setPriceRange] = useState({
+    min: 0,
+    max: 0,
+  });
+
+  const [selectedPrice, setSelectedPrice] = useState([0, 0]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -36,6 +48,23 @@ const ProductsPage = () => {
 
     return categoryMatch && subCategoryMatch;
   });
+  const highestPrice =
+    categoryProducts.length > 0
+      ? Math.ceil(
+          Math.max(...categoryProducts.map((product) => Number(product.price))),
+        )
+      : 0;
+
+  useEffect(() => {
+    if (highestPrice > 0) {
+      setPriceRange({
+        min: 0,
+        max: highestPrice,
+      });
+
+      setSelectedPrice([0, Math.floor(highestPrice)]);
+    }
+  }, [highestPrice]);
 
   const categoryCounts = {};
 
@@ -115,12 +144,17 @@ const ProductsPage = () => {
       selectedSizes.length === 0 ||
       product.sizes?.some((size) => selectedSizes.includes(size));
 
-    return subCategoryMatch && brandMatch && colorMatch && sizeMatch;
+    const priceMatch =
+      product.price >= selectedPrice[0] && product.price <= selectedPrice[1];
+
+    return (
+      subCategoryMatch && brandMatch && colorMatch && sizeMatch && priceMatch
+    );
   });
 
   return (
     <>
-      <div className="mb-6 mx-6 mt-3">
+      <div className="mb-6 mx-6 mt-9">
         <p className="text-sm text-gray-500 mb-4">
           Home /<span className="text-gray-700"> {category}</span>
           {subCategory && (
@@ -156,23 +190,37 @@ const ProductsPage = () => {
                   </h3>
 
                   <div className="space-y-2">
-                    {Object.entries(categoryCounts).map(([subCat, count]) => (
-                      <label
-                        key={subCat}
-                        className="flex items-center gap-2 text-sm cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedSubCategories.includes(subCat)}
-                          onChange={() => handleSubCategoryChange(subCat)}
-                        />
+                    {Object.entries(categoryCounts)
+                      .slice(0, 6)
+                      .map(([subCat, count]) => (
+                        <label
+                          key={subCat}
+                          className="flex items-center gap-2 text-sm cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedSubCategories.includes(subCat)}
+                            onChange={() => handleSubCategoryChange(subCat)}
+                          />
 
-                        <span>
-                          {subCat}
-                          <span className="text-gray-400 ml-1">({count})</span>
-                        </span>
-                      </label>
-                    ))}
+                          <span>
+                            {subCat}
+                            <span className="text-gray-400 ml-1">
+                              ({count})
+                            </span>
+                          </span>
+                        </label>
+                      ))}
+
+                    {Object.keys(categoryCounts).length > 6 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowCategoryModal(true)}
+                        className="text-[#ff3f6c] text-sm font-medium ml-6 mt-2"
+                      >
+                        + {Object.keys(categoryCounts).length - 6} more
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
@@ -183,6 +231,7 @@ const ProductsPage = () => {
                 <div className="space-y-2">
                   {Object.entries(brandCounts)
                     .sort((a, b) => b[1] - a[1])
+                    .slice(0, 6)
                     .map(([brand, count]) => (
                       <label
                         key={brand}
@@ -200,11 +249,70 @@ const ProductsPage = () => {
                         </span>
                       </label>
                     ))}
+
+                  {Object.keys(brandCounts).length > 6 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowBrandModal(true)}
+                      className="text-[#ff3f6c] text-sm font-medium ml-6 mt-2"
+                    >
+                      + {Object.keys(brandCounts).length - 6} more
+                    </button>
+                  )}
                 </div>
               </div>
 
               <div className="border-t border-gray-200 py-4">
-                <h3 className="text-sm font-bold uppercase">Price</h3>
+                <h3 className="text-sm font-bold uppercase mb-5">Price</h3>
+                {priceRange.max > 0 && (
+                  <Range
+                    step={1}
+                    min={priceRange.min}
+                    max={priceRange.max}
+                    values={selectedPrice}
+                    onChange={(values) => setSelectedPrice(values)}
+                    renderTrack={({ props, children }) => {
+                      const { key, ...trackProps } = props;
+
+                      return (
+                        <div
+                          key={key}
+                          {...trackProps}
+                          className="h-2 w-full rounded-full"
+                          style={{
+                            background: getTrackBackground({
+                              values: selectedPrice,
+                              colors: ["#d1d5db", "#ff3f6c", "#d1d5db"],
+                              min: priceRange.min,
+                              max: priceRange.max,
+                            }),
+                          }}
+                        >
+                          {children}
+                        </div>
+                      );
+                    }}
+                    renderThumb={({ props }) => {
+                      const { key, ...thumbProps } = props;
+
+                      return (
+                        <div
+                          key={key}
+                          {...thumbProps}
+                          className="h-5 w-5 rounded-full bg-white border-2 border-[#ff3f6c] shadow cursor-pointer"
+                        />
+                      );
+                    }}
+                  />
+                )}
+                <div className="flex justify-between mt-4 text-sm font-semibold text-[#282c3f]">
+                  <span>₹{selectedPrice[0]}</span>
+
+                  <span>
+                    ₹{selectedPrice[1]}
+                    {selectedPrice[1] === priceRange.max ? "+" : ""}
+                  </span>
+                </div>
               </div>
 
               <div className="border-t border-gray-200 py-4">
@@ -286,6 +394,21 @@ const ProductsPage = () => {
           </section>
         </div>
       </div>
+      <BrandFilterModal
+        open={showBrandModal}
+        onClose={() => setShowBrandModal(false)}
+        brandCounts={brandCounts}
+        selectedBrands={selectedBrands}
+        handleBrandChange={handleBrandChange}
+      />
+
+      <CategoryFilterModal
+        open={showCategoryModal}
+        onClose={() => setShowCategoryModal(false)}
+        categoryCounts={categoryCounts}
+        selectedSubCategories={selectedSubCategories}
+        handleSubCategoryChange={handleSubCategoryChange}
+      />
     </>
   );
 };

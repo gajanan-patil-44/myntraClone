@@ -4,7 +4,6 @@ const AddressCard = ({
   onSelect,
   onEdit,
   onDelete,
-  onDeliver,
 }) => {
   return (
     <div
@@ -119,21 +118,7 @@ const AddressCard = ({
 
       </div>
 
-      {/* DELIVER BUTTON */}
-
-      {selected && (
-        <div className="border-t border-[#eaeaec] p-4">
-
-          <button
-            type="button"
-            onClick={onDeliver}
-            className="w-full bg-[#ff3f6c] hover:bg-[#ff527b] text-white font-bold text-[14px] py-3 rounded"
-          >
-            DELIVER HERE
-          </button>
-
-        </div>
-      )}
+      
     </div>
   );
 };

@@ -9,7 +9,6 @@ const AddressList = ({
   onAddAddress,
   onEditAddress,
   onDeleteAddress,
-  onDeliver,
 }) => {
   const dispatch = useDispatch();
 
@@ -77,9 +76,7 @@ const AddressList = ({
               onDelete={() =>
                 onDeleteAddress?.(address)
               }
-              onDeliver={() =>
-                onDeliver?.(address)
-              }
+             
             />
 
           ))}

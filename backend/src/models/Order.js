@@ -45,11 +45,41 @@ const orderSchema = new mongoose.Schema(
           type: String,
           default: null,
         },
+        orderStatus: {
+          type: String,
+          enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
+          default: "pending",
+        },
+
+        deliveredAt: {
+          type: Date,
+          default: null,
+        },
       },
     ],
 
     shippingAddress: {
-      street: {
+      fullName: {
+        type: String,
+        required: true,
+      },
+
+      phone: {
+        type: String,
+        required: true,
+      },
+
+      pincode: {
+        type: String,
+        required: true,
+      },
+
+      locality: {
+        type: String,
+        required: true,
+      },
+
+      address: {
         type: String,
         required: true,
       },
@@ -64,15 +94,26 @@ const orderSchema = new mongoose.Schema(
         required: true,
       },
 
-      pincode: {
+      landmark: {
         type: String,
-        required: true,
+        default: "",
+      },
+
+      alternatePhone: {
+        type: String,
+        default: "",
+      },
+
+      addressType: {
+        type: String,
+        enum: ["Home", "Work"],
       },
     },
 
     paymentMethod: {
       type: String,
-      default: "Razorpay",
+      enum: ["COD", "Razorpay"],
+      default: "COD",
     },
 
     paymentStatus: {
@@ -83,13 +124,7 @@ const orderSchema = new mongoose.Schema(
 
     orderStatus: {
       type: String,
-      enum: [
-        "pending",
-        "processing",
-        "shipped",
-        "delivered",
-        "cancelled",
-      ],
+      enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
       default: "pending",
     },
 
@@ -123,7 +158,7 @@ const orderSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Order = mongoose.model("Order", orderSchema);
