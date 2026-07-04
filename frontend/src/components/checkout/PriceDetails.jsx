@@ -4,28 +4,36 @@ import { useSelector } from "react-redux";
 const PriceDetails = ({ buttonText = "CONTINUE", onButtonClick }) => {
   const { items } = useSelector((state) => state.cart);
 
-  const { totalMRP, totalDiscount, platformFee, finalAmount } = useMemo(() => {
-    const totalMRP = Math.round(
-      items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-    );
+  const { totalMRP, subtotal, totalDiscount, shippingFee, tax, finalAmount } =
+    useMemo(() => {
+      const totalMRP = Math.round(
+        items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+      );
 
-    const cartTotal = Math.round(
-      items.reduce((sum, item) => sum + item.effectivePrice * item.quantity, 0),
-    );
+      const subtotal = Math.round(
+        items.reduce(
+          (sum, item) => sum + item.effectivePrice * item.quantity,
+          0,
+        ),
+      );
 
-    const totalDiscount = Math.max(0, totalMRP - cartTotal);
+      const totalDiscount = totalMRP - subtotal;
 
-    const platformFee = items.length > 0 ? 20 : 0;
+      const shippingFee = subtotal > 999 ? 0 : 50;
 
-    const finalAmount = cartTotal + platformFee;
+      const tax = Math.round(subtotal * 0.18);
 
-    return {
-      totalMRP,
-      totalDiscount,
-      platformFee,
-      finalAmount,
-    };
-  }, [items]);
+      const finalAmount = subtotal + shippingFee + tax;
+
+      return {
+        totalMRP,
+        subtotal,
+        totalDiscount,
+        shippingFee,
+        tax,
+        finalAmount,
+      };
+    }, [items]);
 
   return (
     <div className="sticky top-24">
@@ -49,14 +57,20 @@ const PriceDetails = ({ buttonText = "CONTINUE", onButtonClick }) => {
             </div>
 
             <div className="flex justify-between">
-              <span>Platform Fee</span>
-              <span>₹{platformFee}</span>
+              <span>Shipping Fee</span>
+
+              <span>
+                {shippingFee === 0 ? (
+                  <span className="text-[#03a685]">FREE</span>
+                ) : (
+                  `₹${shippingFee}`
+                )}
+              </span>
             </div>
 
             <div className="flex justify-between">
-              <span>Shipping Fee</span>
-
-              <span className="text-[#03a685]">FREE</span>
+              <span>Tax (GST 18%)</span>
+              <span>₹{tax}</span>
             </div>
           </div>
 

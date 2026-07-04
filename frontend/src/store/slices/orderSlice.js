@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createOrder, fetchMyOrders, fetchOrderById } from "./orderThunks";
+import { createOrder, fetchMyOrders, fetchOrderById, verifyPayment } from "./orderThunks";
 
 const initialState = {
   loading: false,
@@ -62,6 +62,21 @@ const orderSlice = createSlice({
       })
 
       .addCase(fetchOrderById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(verifyPayment.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(verifyPayment.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedOrder = action.payload.order;
+      })
+
+      .addCase(verifyPayment.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

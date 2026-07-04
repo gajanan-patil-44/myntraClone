@@ -46,3 +46,21 @@ export const fetchOrderById = createAsyncThunk(
     }
   }
 );
+
+export const verifyPayment = createAsyncThunk(
+  "order/verifyPayment",
+  async (paymentData, thunkAPI) => {
+    try {
+      const response = await axios.post(
+        "/payments/verify",
+        paymentData
+      );
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Payment verification failed"
+      );
+    }
+  }
+);

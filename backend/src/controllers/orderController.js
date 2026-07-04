@@ -1,6 +1,7 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 import User from "../models/User.js";
+import razorpay from "../config/razorpay.js";
 
 /**
  * CREATE ORDER
@@ -60,10 +61,6 @@ export const createOrder = async (req, res) => {
         orderStatus: "pending",
         deliveredAt: null,
       });
-
-      // reduce stock immediately (reservation logic)
-      product.stock -= item.quantity;
-      await product.save();
     }
 
     // 2. Address validation
@@ -80,7 +77,7 @@ export const createOrder = async (req, res) => {
     const taxPrice = Math.round(subtotal * 0.18);
     const totalPrice = subtotal + shippingPrice + taxPrice;
 
-    // 3. Create order
+    // 3. Create MongoDB order
     const order = await Order.create({
       userId,
       orderItems,
@@ -100,19 +97,58 @@ export const createOrder = async (req, res) => {
       taxPrice,
       shippingPrice,
       totalPrice,
-      paymentMethod: paymentMethod || "COD",
+      paymentMethod,
       paymentStatus: "pending",
       orderStatus: "pending",
     });
 
-    // 4. Clear cart
-    user.cartItems = [];
-    await user.save();
+    // =======================
+    // COD FLOW
+    // =======================
+    if (paymentMethod === "COD") {
+      for (const item of order.orderItems) {
+        const product = await Product.findById(item.productId);
 
-    res.status(201).json({
+        if (!product) continue;
+
+        product.stock -= item.quantity;
+        await product.save();
+      }
+
+      user.cartItems = [];
+      await user.save();
+
+      return res.status(201).json({
+        success: true,
+        paymentType: "COD",
+        message: "Order placed successfully",
+        order,
+      });
+    }
+
+    // =======================
+    // RAZORPAY FLOW
+    // =======================
+    const razorpayOrder = await razorpay.orders.create({
+      amount: order.totalPrice * 100,
+      currency: "INR",
+      receipt: order._id.toString(),
+    });
+
+    order.razorpayOrderId = razorpayOrder.id;
+    await order.save();
+
+    return res.status(201).json({
       success: true,
-      message: "Order placed successfully",
+      paymentType: "Razorpay",
+      key: process.env.RAZORPAY_KEY_ID,
       order,
+      razorpayOrder,
+      customer: {
+        name: user.name,
+        email: user.email,
+        contact: address.phone,
+      },
     });
   } catch (error) {
     console.error("Create Order Error:", error);
