@@ -30,9 +30,7 @@ const PaymentPage = () => {
   const handlePlaceOrder = async () => {
     if (!addressId) return;
 
-    const result = await dispatch(
-      createOrder({ addressId, paymentMethod })
-    );
+    const result = await dispatch(createOrder({ addressId, paymentMethod }));
 
     if (!createOrder.fulfilled.match(result)) {
       alert(result.payload || "Order failed");
@@ -41,7 +39,7 @@ const PaymentPage = () => {
 
     const data = result.payload;
     console.log("Mongo Order:", data.order);
-console.log("Razorpay Order:", data.razorpayOrder);
+    console.log("Razorpay Order:", data.razorpayOrder);
 
     // ------------------------
     // COD FLOW
@@ -80,11 +78,12 @@ console.log("Razorpay Order:", data.razorpayOrder);
       handler: async function (response) {
         const verifyResult = await dispatch(
           verifyPayment({
-            orderId: order._id,
+            addressId,
+            paymentMethod,
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
-          })
+          }),
         );
 
         if (verifyPayment.fulfilled.match(verifyResult)) {
@@ -106,9 +105,7 @@ console.log("Razorpay Order:", data.razorpayOrder);
   if (!addressId) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <h2 className="text-xl font-semibold">
-          No delivery address selected.
-        </h2>
+        <h2 className="text-xl font-semibold">No delivery address selected.</h2>
       </div>
     );
   }
@@ -119,7 +116,6 @@ console.log("Razorpay Order:", data.razorpayOrder);
 
       <div className="max-w-[1100px] mx-auto py-8 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
-
           {/* LEFT */}
           <div className="border border-[#eaeaec] rounded bg-white">
             <div className="border-b border-[#eaeaec] px-6 py-5">
@@ -129,7 +125,6 @@ console.log("Razorpay Order:", data.razorpayOrder);
             </div>
 
             <div className="p-6 space-y-6">
-
               {/* COD */}
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
@@ -172,8 +167,8 @@ console.log("Razorpay Order:", data.razorpayOrder);
               loading
                 ? "PROCESSING..."
                 : paymentMethod === "COD"
-                ? "PLACE ORDER"
-                : "PAY NOW"
+                  ? "PLACE ORDER"
+                  : "PAY NOW"
             }
             onButtonClick={handlePlaceOrder}
           />

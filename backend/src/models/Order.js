@@ -139,6 +139,11 @@ const orderSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    platformFee: {
+      type: Number,
+      default: 20,
+      min: 0,
+    },
 
     shippingPrice: {
       type: Number,

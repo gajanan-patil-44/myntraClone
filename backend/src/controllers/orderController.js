@@ -73,12 +73,86 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    const shippingPrice = subtotal > 999 ? 0 : 50;
-    const taxPrice = Math.round(subtotal * 0.18);
-    const totalPrice = subtotal + shippingPrice + taxPrice;
+    const platformFee = cartItems.length > 0 ? 20 : 0;
+    const shippingPrice = 0;
+    const taxPrice = 0;
+    const totalPrice = subtotal + platformFee;
 
+    // Check if user already has a pending Razorpay order
+    if (paymentMethod === "Razorpay") {
+      const existingOrder = await Order.findOne({
+        userId,
+        paymentMethod: "Razorpay",
+        paymentStatus: "pending",
+      });
+
+      if (existingOrder) {
+        const sameCart =
+          existingOrder.orderItems.length === orderItems.length &&
+          existingOrder.orderItems.every((orderItem) =>
+            orderItems.some(
+              (cartItem) =>
+                cartItem.productId.toString() ===
+                  orderItem.productId.toString() &&
+                cartItem.quantity === orderItem.quantity &&
+                cartItem.size === orderItem.size &&
+                cartItem.color === orderItem.color,
+            ),
+          );
+
+        const sameAddress =
+          existingOrder.shippingAddress.address === address.address &&
+          existingOrder.shippingAddress.pincode === address.pincode &&
+          existingOrder.shippingAddress.phone === address.phone;
+
+        const canReuseOrder = sameCart && sameAddress;
+
+        if (!canReuseOrder) {
+          await existingOrder.deleteOne();
+        } else {
+          let razorpayOrder;
+
+          try {
+            razorpayOrder = await razorpay.orders.fetch(
+              existingOrder.razorpayOrderId,
+            );
+          } catch (error) {
+            // Razorpay order no longer exists, remove stale pending order
+            await existingOrder.deleteOne();
+          }
+
+          if (razorpayOrder) {
+            return res.status(200).json({
+              success: true,
+              paymentType: "Razorpay",
+              key: process.env.RAZORPAY_KEY_ID,
+              order: existingOrder,
+              razorpayOrder,
+              customer: {
+                name: user.name,
+                email: user.email,
+                contact: address.phone,
+              },
+            });
+          }
+
+          return res.status(200).json({
+            success: true,
+            paymentType: "Razorpay",
+            key: process.env.RAZORPAY_KEY_ID,
+            order: existingOrder,
+            razorpayOrder,
+            customer: {
+              name: user.name,
+              email: user.email,
+              contact: address.phone,
+            },
+          });
+        }
+      }
+    }
     // 3. Create MongoDB order
-    const order = await Order.create({
+    const order = {
       userId,
       orderItems,
       shippingAddress: {
@@ -95,18 +169,20 @@ export const createOrder = async (req, res) => {
       },
       subtotal,
       taxPrice,
+      platformFee,
       shippingPrice,
       totalPrice,
       paymentMethod,
       paymentStatus: "pending",
       orderStatus: "pending",
-    });
+    };
 
     // =======================
     // COD FLOW
     // =======================
     if (paymentMethod === "COD") {
-      for (const item of order.orderItems) {
+      const createdOrder = await Order.create(order);
+      for (const item of createdOrder.orderItems) {
         const product = await Product.findById(item.productId);
 
         if (!product) continue;
@@ -122,27 +198,30 @@ export const createOrder = async (req, res) => {
         success: true,
         paymentType: "COD",
         message: "Order placed successfully",
-        order,
+        order: createdOrder,
       });
     }
 
     // =======================
     // RAZORPAY FLOW
     // =======================
+
+    const createdOrder = await Order.create(order);
+
     const razorpayOrder = await razorpay.orders.create({
-      amount: order.totalPrice * 100,
+      amount: createdOrder.totalPrice * 100,
       currency: "INR",
-      receipt: order._id.toString(),
+      receipt: createdOrder._id.toString(),
     });
 
-    order.razorpayOrderId = razorpayOrder.id;
-    await order.save();
+    createdOrder.razorpayOrderId = razorpayOrder.id;
+    await createdOrder.save();
 
     return res.status(201).json({
       success: true,
       paymentType: "Razorpay",
       key: process.env.RAZORPAY_KEY_ID,
-      order,
+      order: createdOrder,
       razorpayOrder,
       customer: {
         name: user.name,
@@ -157,7 +236,13 @@ export const createOrder = async (req, res) => {
 };
 
 export const getMyOrders = async (req, res) => {
-  const orders = await Order.find({ userId: req.user.id }).sort({
+  const orders = await Order.find({
+    userId: req.user.id,
+    $or: [
+      { paymentMethod: "COD" },
+      { paymentMethod: "Razorpay", paymentStatus: "paid" },
+    ],
+  }).sort({
     createdAt: -1,
   });
 

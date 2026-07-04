@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 const PriceDetails = ({ buttonText = "CONTINUE", onButtonClick }) => {
   const { items } = useSelector((state) => state.cart);
 
-  const { totalMRP, subtotal, totalDiscount, shippingFee, tax, finalAmount } =
+  const { totalMRP, subtotal, totalDiscount, platformFee, finalAmount } =
     useMemo(() => {
       const totalMRP = Math.round(
         items.reduce((sum, item) => sum + item.price * item.quantity, 0),
@@ -19,18 +19,15 @@ const PriceDetails = ({ buttonText = "CONTINUE", onButtonClick }) => {
 
       const totalDiscount = totalMRP - subtotal;
 
-      const shippingFee = subtotal > 999 ? 0 : 50;
+      const platformFee = items.length > 0 ? 20 : 0;
 
-      const tax = Math.round(subtotal * 0.18);
-
-      const finalAmount = subtotal + shippingFee + tax;
+      const finalAmount = subtotal + platformFee;
 
       return {
         totalMRP,
         subtotal,
         totalDiscount,
-        shippingFee,
-        tax,
+        platformFee,
         finalAmount,
       };
     }, [items]);
@@ -57,20 +54,13 @@ const PriceDetails = ({ buttonText = "CONTINUE", onButtonClick }) => {
             </div>
 
             <div className="flex justify-between">
-              <span>Shipping Fee</span>
-
-              <span>
-                {shippingFee === 0 ? (
-                  <span className="text-[#03a685]">FREE</span>
-                ) : (
-                  `₹${shippingFee}`
-                )}
-              </span>
+              <span>Platform Fee</span>
+              <span>₹{platformFee}</span>
             </div>
 
             <div className="flex justify-between">
-              <span>Tax (GST 18%)</span>
-              <span>₹{tax}</span>
+              <span>Shipping Fee</span>
+              <span className="text-[#03a685]">FREE</span>
             </div>
           </div>
 
