@@ -12,7 +12,7 @@ import wishlistRoute from "./src/routes/wishlistRoute.js";
 
 import authRoute from "./src/routes/authRoute.js";
 import reviewRoute from "./src/routes/reviewRoute.js";
-
+import paymentRoute from "./src/routes/paymentRoute.js";
 dotenv.config();
 
 const app = express();
@@ -36,6 +36,7 @@ app.use("/api", wishlistRoute);
 
 app.use("/api/auth", authRoute);
 app.use("/api/reviews", reviewRoute);
+app.use("/api/payments", paymentRoute);
 
 app.get("/", (req, res) => {
   res.json({

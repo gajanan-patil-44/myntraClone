@@ -300,14 +300,21 @@ const OrderDetailsPage = () => {
               </div>
 
               <div className="flex justify-between">
-                <span>Tax</span>
-                <span>₹{selectedOrder.taxPrice}</span>
+                <span>Platform Fee</span>
+                <span>₹{selectedOrder.platformFee}</span>
               </div>
 
               <div className="flex justify-between">
-                <span>Shipping</span>
-                <span>₹{selectedOrder.shippingPrice}</span>
-              </div>
+  <span>Shipping</span>
+
+  <span>
+    {selectedOrder.shippingPrice === 0 ? (
+      <span className="text-[#03a685]">FREE</span>
+    ) : (
+      `₹${selectedOrder.shippingPrice}`
+    )}
+  </span>
+</div>
 
               <hr />
 

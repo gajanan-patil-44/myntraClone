@@ -4,28 +4,33 @@ import { useSelector } from "react-redux";
 const PriceDetails = ({ buttonText = "CONTINUE", onButtonClick }) => {
   const { items } = useSelector((state) => state.cart);
 
-  const { totalMRP, totalDiscount, platformFee, finalAmount } = useMemo(() => {
-    const totalMRP = Math.round(
-      items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-    );
+  const { totalMRP, subtotal, totalDiscount, platformFee, finalAmount } =
+    useMemo(() => {
+      const totalMRP = Math.round(
+        items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+      );
 
-    const cartTotal = Math.round(
-      items.reduce((sum, item) => sum + item.effectivePrice * item.quantity, 0),
-    );
+      const subtotal = Math.round(
+        items.reduce(
+          (sum, item) => sum + item.effectivePrice * item.quantity,
+          0,
+        ),
+      );
 
-    const totalDiscount = Math.max(0, totalMRP - cartTotal);
+      const totalDiscount = totalMRP - subtotal;
 
-    const platformFee = items.length > 0 ? 20 : 0;
+      const platformFee = items.length > 0 ? 20 : 0;
 
-    const finalAmount = cartTotal + platformFee;
+      const finalAmount = subtotal + platformFee;
 
-    return {
-      totalMRP,
-      totalDiscount,
-      platformFee,
-      finalAmount,
-    };
-  }, [items]);
+      return {
+        totalMRP,
+        subtotal,
+        totalDiscount,
+        platformFee,
+        finalAmount,
+      };
+    }, [items]);
 
   return (
     <div className="sticky top-24">
@@ -55,7 +60,6 @@ const PriceDetails = ({ buttonText = "CONTINUE", onButtonClick }) => {
 
             <div className="flex justify-between">
               <span>Shipping Fee</span>
-
               <span className="text-[#03a685]">FREE</span>
             </div>
           </div>
