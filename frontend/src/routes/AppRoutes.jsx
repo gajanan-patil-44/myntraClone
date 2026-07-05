@@ -8,10 +8,13 @@ import WishlistPage from "../pages/WishlistPage";
 import CartPage from "../pages/CartPage";
 import AddressPage from "../pages/AddressPage";
 import ProductDetailsPage from "../pages/ProductDetailsPage";
-import {CheckoutPage} from "../pages/CheckoutPage";
+import { CheckoutPage } from "../pages/CheckoutPage";
 import PaymentPage from "../pages/PaymentPage";
 import MyOrdersPage from "../pages/MyOrdersPage";
 import OrderDetailsPage from "../pages/OrderDetailsPage";
+import AdminLayout from "../layouts/AdminLayout";
+import DashboardPage from "../pages/admin/DashboardPage";
+import AdminProtectedRoute from "./AdminProtectedRoute";
 
 const AppRoutes = () => {
   return (
@@ -21,7 +24,10 @@ const AppRoutes = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/products/:category" element={<ProductsPage />} />
-          <Route path="/products/:category/:subCategory" element={<ProductsPage />}/>
+          <Route
+            path="/products/:category/:subCategory"
+            element={<ProductsPage />}
+          />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
@@ -29,10 +35,16 @@ const AppRoutes = () => {
           <Route path="/address" element={<AddressPage />} />
           <Route path="/product/:id" element={<ProductDetailsPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path ="/payment" element ={<PaymentPage/>} />
+          <Route path="/payment" element={<PaymentPage />} />
           <Route path="/orders" element={<MyOrdersPage />} />
           <Route path="/orders/:id" element={<OrderDetailsPage />} />
         </Route>
+
+        <Route element={<AdminProtectedRoute />}>
+  <Route path="/admin" element={<AdminLayout />}>
+    <Route index element={<DashboardPage />} />
+  </Route>
+</Route>
       </Routes>
     </BrowserRouter>
   );

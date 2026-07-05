@@ -49,7 +49,7 @@ const HomePage = () => {
             product.category === category &&
             product.subCategory === subcategory,
         );
-        console.log(category, subcategory, firstProduct);
+        // console.log(category, subcategory, firstProduct);
 
         return {
           category,

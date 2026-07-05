@@ -88,7 +88,7 @@ const ProductDetailsPage = () => {
         const response = await api.get(`/products/${id}`);
         setProduct(response.data.product);
         const reviewData = await getProductReviews(response.data.product._id);
-        console.log(reviewData);
+        // console.log(reviewData);
 
         setReviews(reviewData);
       } catch (error) {
