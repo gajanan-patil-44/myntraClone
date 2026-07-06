@@ -12,9 +12,13 @@ import { CheckoutPage } from "../pages/CheckoutPage";
 import PaymentPage from "../pages/PaymentPage";
 import MyOrdersPage from "../pages/MyOrdersPage";
 import OrderDetailsPage from "../pages/OrderDetailsPage";
-import AdminLayout from "../layouts/AdminLayout";
-import DashboardPage from "../pages/admin/DashboardPage";
+
 import AdminProtectedRoute from "./AdminProtectedRoute";
+import AdminLayout from "../pages/admin/layout/AdminLayout";
+import AdminDashboard from "../pages/admin/pages/AdminDashboard";
+import ProductListPage from "../pages/admin/pages/ProductListPage";
+import AddProductPage from "../pages/admin/pages/AddProductPage";
+import EditProductPage from "../pages/admin/pages/EditProductPage";
 
 const AppRoutes = () => {
   return (
@@ -41,10 +45,15 @@ const AppRoutes = () => {
         </Route>
 
         <Route element={<AdminProtectedRoute />}>
-  <Route path="/admin" element={<AdminLayout />}>
-    <Route index element={<DashboardPage />} />
-  </Route>
-</Route>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="products" element={<ProductListPage />} />
+            <Route path="products/add" element={<AddProductPage />} />
+            <Route path="orders" element={<div>Admin Orders</div>} />
+            <Route path="users" element={<div>Admin Users</div>} />
+            <Route path="products/edit/:id" element={<EditProductPage />} />
+          </Route>
+        </Route>
       </Routes>
     </BrowserRouter>
   );

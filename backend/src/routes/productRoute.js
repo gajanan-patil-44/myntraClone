@@ -1,10 +1,18 @@
 import express from "express";
 
-import { getAllProducts, getProductById, createProduct, updateProduct,toggleProductStatus,deleteProduct} from "../controllers/productController.js";
+import { getAllProducts, getProductById, createProduct, updateProduct,toggleProductStatus,deleteProduct, getAllProductsAdmin} from "../controllers/productController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import adminMiddleware from "../middleware/adminMiddleware.js";
 
 const router = express.Router();
+
+// GET ALL PRODUCTS - ADMIN
+router.get(
+  "/admin/all",
+  authMiddleware,
+  adminMiddleware,
+  getAllProductsAdmin
+);
 
 router.get("/", getAllProducts);
 router.get("/:id", getProductById);
