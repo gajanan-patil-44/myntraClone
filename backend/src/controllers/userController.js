@@ -215,7 +215,7 @@ export const getAddresses = async (req, res) => {
 };
 // ADD NEW ADDRESS
 export const addAddress = async (req, res) => {
-  console.log("🔥 ADD ADDRESS HIT");
+  // console.log(" ADD ADDRESS HIT");
   try {
     const user = await User.findById(req.user._id);
 

@@ -19,8 +19,8 @@ export const createOrder = async (req, res) => {
 
     const cartItems = user.cartItems;
     // const cartItems = user.cartItems.map(item => item.toObject());
-    console.log("USER ID:", user._id);
-    console.log("CART ITEMS FROM DB:", user.cartItems);
+    // console.log("USER ID:", user._id);
+    // console.log("CART ITEMS FROM DB:", user.cartItems);
 
     if (!cartItems || cartItems.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
@@ -261,4 +261,194 @@ export const getOrderById = async (req, res) => {
   }
 
   res.json({ success: true, order });
+};
+
+export const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate("userId", "firstName lastName email")
+      .sort({ createdAt: -1 });
+    // console.log(JSON.stringify(orders[0], null, 2));
+    return res.status(200).json({
+      success: true,
+      count: orders.length,
+      orders,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { orderStatus } = req.body;
+
+    const allowedStatuses = [
+      "pending",
+      "processing",
+      "shipped",
+      "delivered",
+      "cancelled",
+    ];
+
+    if (!allowedStatuses.includes(orderStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid order status.",
+      });
+    }
+
+    const order = await Order.findById(id);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
+    }
+
+    order.orderStatus = orderStatus;
+
+    // Update COD payment status
+    if (order.paymentMethod === "COD") {
+      order.paymentStatus = orderStatus === "delivered" ? "paid" : "pending";
+    }
+
+    order.orderItems = order.orderItems.map((item) => ({
+      ...item.toObject(),
+      orderStatus,
+      deliveredAt: orderStatus === "delivered" ? new Date() : item.deliveredAt,
+    }));
+
+    await order.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Order status updated successfully.",
+      order,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getAdminOrderById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const order = await Order.findById(id)
+      .populate("userId", "firstName lastName email")
+      .populate("orderItems.productId");
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      order,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateOrderItemStatus = async (req, res) => {
+  // console.log("===== updateOrderItemStatus called =====");
+  try {
+    const { orderId, itemId } = req.params;
+    const { orderStatus } = req.body;
+
+    const allowedStatuses = [
+      "pending",
+      "processing",
+      "shipped",
+      "delivered",
+      "cancelled",
+    ];
+
+    if (!allowedStatuses.includes(orderStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid order status.",
+      });
+    }
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
+    }
+
+    const item = order.orderItems.id(itemId);
+
+    if (!item) {
+      return res.status(404).json({
+        success: false,
+        message: "Order item not found.",
+      });
+    }
+
+    item.orderStatus = orderStatus;
+
+    if (orderStatus === "delivered") {
+      item.deliveredAt = new Date();
+    }
+    const statuses = order.orderItems.map((item) => item.orderStatus);
+
+// Calculate overall order status
+if (statuses.every((status) => status === "delivered")) {
+  order.orderStatus = "delivered";
+} else if (statuses.every((status) => status === "cancelled")) {
+  order.orderStatus = "cancelled";
+} else if (statuses.some((status) => status === "shipped")) {
+  order.orderStatus = "shipped";
+} else if (statuses.some((status) => status === "processing")) {
+  order.orderStatus = "processing";
+} else {
+  order.orderStatus = "pending";
+}
+
+// COD payment status
+if (order.paymentMethod === "COD") {
+  if (order.orderStatus === "delivered") {
+    order.paymentStatus = "paid";
+    order.paidAt = new Date();
+  } else {
+    order.paymentStatus = "pending";
+    order.paidAt = null;
+  }
+}
+    await order.save();
+    const updatedOrder = await Order.findById(orderId);
+    const updatedItem = updatedOrder.orderItems.id(itemId);
+
+    // console.log("After save:", updatedItem.orderStatus);
+    return res.status(200).json({
+      success: true,
+      message: "Order item updated successfully.",
+      order,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };

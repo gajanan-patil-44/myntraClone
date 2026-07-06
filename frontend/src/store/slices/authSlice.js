@@ -113,12 +113,12 @@ const authSlice = createSlice({
 
       // ================= FETCH PROFILE =================
       .addCase(fetchUserProfile.pending, (state) => {
-         console.log("PROFILE PENDING");
+        //  console.log("PROFILE PENDING");
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchUserProfile.fulfilled, (state, action) => {
-          console.log("PROFILE FULFILLED", action.payload.user);
+          // console.log("PROFILE FULFILLED", action.payload.user);
 
         state.loading = false;
         state.user = action.payload.user;
@@ -127,7 +127,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchUserProfile.rejected, (state, action) => {
-          console.log("PROFILE REJECTED");
+          // console.log("PROFILE REJECTED");
 
         state.loading = false;
         state.user = null;

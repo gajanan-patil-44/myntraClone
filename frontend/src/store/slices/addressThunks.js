@@ -22,21 +22,21 @@ export const fetchAddresses = createAsyncThunk(
 export const addAddress = createAsyncThunk(
   "address/addAddress",
   async (addressData, thunkAPI) => {
-    console.log("1. Thunk started");
-    console.log("2. addressData:", addressData);
+    // console.log("1. Thunk started");
+    // console.log("2. addressData:", addressData);
 
     try {
-      console.log("3. About to call API");
+      // console.log("3. About to call API");
 
       const response = await api.post("/users/addresses", addressData);
 
-      console.log("4. API returned:", response);
+      // console.log("4. API returned:", response);
 
       await thunkAPI.dispatch(fetchAddresses());
 
       return response.data;
     } catch (error) {
-      console.log("5. API error:", error);
+      // console.log("5. API error:", error);
 
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to add address."

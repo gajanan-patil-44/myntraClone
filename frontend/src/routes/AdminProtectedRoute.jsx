@@ -6,27 +6,27 @@ const AdminProtectedRoute = () => {
   (state) => state.auth
 );
 
-  console.log({
-    loading,
-    isAuthenticated,
-    role: user?.role,
-  });
+  // console.log({
+  //   loading,
+  //   isAuthenticated,
+  //   role: user?.role,
+  // });
 
   if (!authChecked) {
   return <div>Loading...</div>;
 }
 
   if (!isAuthenticated) {
-    console.log("RETURN: Login");
+    // console.log("RETURN: Login");
     return <Navigate to="/login" replace />;
   }
 
   if (user?.role !== "admin") {
-    console.log("RETURN: Home");
+    // console.log("RETURN: Home");
     return <Navigate to="/" replace />;
   }
 
-  console.log("RETURN: Outlet");
+  // console.log("RETURN: Outlet");
   return <Outlet />;
 };
 
