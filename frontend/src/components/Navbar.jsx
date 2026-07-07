@@ -4,7 +4,7 @@ import { categories } from "../constants/categories";
 import { navbarCategories } from "../constants/navbarCategories";
 import myntraLogo from "../assets/myntraLogo.jpg";
 
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../store/slices/authThunks";
@@ -12,9 +12,11 @@ import { logoutUser } from "../store/slices/authThunks";
 import { fetchCart } from "../store/slices/cartThunks";
 import { fetchWishlist } from "../store/slices/wishlistThunks";
 import { clearWishlistState } from "../store/slices/wishlistSlice";
+
 const Navbar = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const searchInputRef = useRef(null);
 
   const dispatch = useDispatch();
 
@@ -147,15 +149,19 @@ const Navbar = () => {
         <div className="hidden lg:flex items-center bg-gray-100 px-3 py-2 rounded-md flex-1 max-w-md">
           <FiSearch className="text-gray-500" />
           <input
+          ref={searchInputRef}
             type="text"
             placeholder="Search products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && searchTerm.trim()) {
+                    const query = searchTerm.trim();
                 navigate(
                   `/products?search=${encodeURIComponent(searchTerm.trim())}`,
                 );
+                setSearchTerm("");
+                searchInputRef.current?.blur();
               }
             }}
             className="bg-transparent outline-none ml-2 w-full"

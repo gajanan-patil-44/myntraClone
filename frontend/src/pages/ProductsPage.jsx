@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import ProductCard from "../components/ProductCard";
-import { useParams,useSearchParams  } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { Range, getTrackBackground } from "react-range";
 import BrandFilterModal from "../components/BrandFilterModal";
 import CategoryFilterModal from "../components/CategoryFilterModal";
@@ -16,9 +16,8 @@ const ProductsPage = () => {
   const [showBrandModal, setShowBrandModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
 
-  const [searchParams] = useSearchParams();
-const searchTerm =
-  searchParams.get("search")?.toLowerCase().trim() || "";
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchTerm = searchParams.get("search")?.toLowerCase().trim() || "";
 
   const [priceRange, setPriceRange] = useState({
     min: 0,
@@ -151,17 +150,30 @@ const searchTerm =
     const priceMatch =
       product.price >= selectedPrice[0] && product.price <= selectedPrice[1];
 
-      const searchMatch =
-  searchTerm === "" ||
-  product.name.toLowerCase().includes(searchTerm) ||
-  product.brand.toLowerCase().includes(searchTerm) ||
-  product.category.toLowerCase().includes(searchTerm) ||
-  product.subCategory.toLowerCase().includes(searchTerm);
+    const searchMatch =
+      searchTerm === "" ||
+      product.name.toLowerCase().includes(searchTerm) ||
+      product.brand.toLowerCase().includes(searchTerm) ||
+      product.category.toLowerCase().includes(searchTerm) ||
+      product.subCategory.toLowerCase().includes(searchTerm);
 
     return (
-      subCategoryMatch && brandMatch && colorMatch && sizeMatch && priceMatch && searchMatch
+      subCategoryMatch &&
+      brandMatch &&
+      colorMatch &&
+      sizeMatch &&
+      priceMatch &&
+      searchMatch
     );
   });
+
+  const handleClearSearch = () => {
+    const params = new URLSearchParams(searchParams);
+
+    params.delete("search");
+
+    setSearchParams(params);
+  };
 
   return (
     <>
@@ -398,9 +410,33 @@ const searchTerm =
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
-              {displayProducts.map((product) => (
-                <ProductCard key={product._id} product={product} />
-              ))}
+              {displayProducts.length > 0 ? (
+                displayProducts.map((product) => (
+                  <ProductCard key={product._id} product={product} />
+                ))
+              ) : searchTerm ? (
+                <div className="col-span-full flex flex-col items-center justify-center py-16">
+                  <h2 className="text-2xl font-semibold text-[#282c3f]">
+                    No products found
+                  </h2>
+
+                  <p className="mt-3 text-gray-500">
+                    No products found for{" "}
+                    <span className="font-semibold">"{searchTerm}"</span>
+                  </p>
+
+                  <button
+                    onClick={handleClearSearch}
+                    className="mt-6 px-6 py-3 rounded-md bg-[#ff3f6c] text-white hover:bg-[#e73361] transition"
+                  >
+                    Clear Search
+                  </button>
+                </div>
+              ) : (
+                <p className="col-span-full text-center text-gray-500 py-16">
+                  No products available.
+                </p>
+              )}
             </div>
           </section>
         </div>
