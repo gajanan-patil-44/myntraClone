@@ -42,19 +42,19 @@ const AdminOrderDetailsPage = () => {
   // };
 
   const handleItemStatusUpdate = async (itemId) => {
-  // console.log("Before Dispatch");
+    // console.log("Before Dispatch");
 
-  const result = await dispatch(
-    updateOrderItemStatus({
-      orderId: id,
-      itemId,
-      orderStatus: itemStatuses[itemId],
-    })
-  );
+    const result = await dispatch(
+      updateOrderItemStatus({
+        orderId: id,
+        itemId,
+        orderStatus: itemStatuses[itemId],
+      }),
+    );
 
-//   console.log("After Dispatch");
-// console.log(JSON.stringify(result, null, 2));
-};
+    //   console.log("After Dispatch");
+    // console.log(JSON.stringify(result, null, 2));
+  };
 
   if (loading || !selectedOrder) {
     return <div className="text-center mt-10 text-lg">Loading Order...</div>;
@@ -110,14 +110,17 @@ const AdminOrderDetailsPage = () => {
         <div className="bg-white rounded-lg shadow p-5">
           <h2 className="text-lg font-semibold mb-4">Payment Details</h2>
 
-          <div className="space-y-2 text-sm">
-            <p>
-              <span className="font-medium">Method:</span>{" "}
-              {selectedOrder.paymentMethod}
-            </p>
+          <div className="space-y-3 text-sm">
+            {/* Payment Method */}
+            <div className="flex justify-between">
+              <span className="font-medium">Method:</span>
+              <span>{selectedOrder.paymentMethod}</span>
+            </div>
 
-            <p>
-              <span className="font-medium">Payment Status:</span>{" "}
+            {/* Payment Status */}
+            <div className="flex justify-between">
+              <span className="font-medium">Payment Status:</span>
+
               <span
                 className={`font-semibold ${
                   selectedOrder.paymentStatus === "paid"
@@ -129,15 +132,96 @@ const AdminOrderDetailsPage = () => {
               >
                 {selectedOrder.paymentStatus}
               </span>
-            </p>
+            </div>
 
-            <p>
-              <span className="font-medium">Total:</span> ₹
-              {selectedOrder.totalPrice}
-            </p>
-            
+            {/* Paid On */}
+            <div className="flex justify-between">
+              <span className="font-medium">Paid On:</span>
+
+              <span>
+                {selectedOrder.paidAt
+                  ? new Date(selectedOrder.paidAt).toLocaleString()
+                  : "-"}
+              </span>
+            </div>
+
+            {/* Total Amount */}
+            <div className="flex justify-between">
+              <span className="font-medium">Total Amount:</span>
+              <span>₹{selectedOrder.totalPrice}</span>
+            </div>
+
+            {/* Razorpay Order ID */}
+            {selectedOrder.paymentMethod === "Razorpay" &&
+              selectedOrder.razorpayOrderId && (
+                <div className="pt-3 border-t">
+                  <p className="font-medium mb-1">Razorpay Order ID</p>
+
+                  <p className="text-xs break-all text-gray-600">
+                    {selectedOrder.razorpayOrderId}
+                  </p>
+                </div>
+              )}
+
+            {/* Razorpay Payment ID */}
+            {selectedOrder.paymentMethod === "Razorpay" &&
+              selectedOrder.razorpayPaymentId && (
+                <div>
+                  <p className="font-medium mb-1">Razorpay Payment ID</p>
+
+                  <p className="text-xs break-all text-gray-600">
+                    {selectedOrder.razorpayPaymentId}
+                  </p>
+                </div>
+              )}
+
+            {/* Payment Failure Reason */}
+            {selectedOrder.paymentStatus === "failed" &&
+              selectedOrder.paymentFailureReason && (
+                <div className="pt-3 border-t">
+                  <p className="font-medium text-red-600 mb-1">
+                    Payment Failure Reason
+                  </p>
+
+                  <p className="text-sm text-red-500">
+                    {selectedOrder.paymentFailureReason}
+                  </p>
+                </div>
+              )}
           </div>
         </div>
+        {/* <div className="bg-white rounded-lg shadow p-5 mt-6">
+          <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+
+          <div className="space-y-3 text-sm">
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span>₹{selectedOrder.subtotal}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>Tax</span>
+              <span>₹{selectedOrder.taxPrice}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>Platform Fee</span>
+              <span>₹{selectedOrder.platformFee}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>Shipping</span>
+              <span>₹{selectedOrder.shippingPrice}</span>
+            </div>
+
+            <hr />
+
+            <div className="flex justify-between font-bold text-base">
+              <span>Total</span>
+              <span>₹{selectedOrder.totalPrice}</span>
+            </div>
+          </div>
+        </div> */}
       </div>
       {/* Ordered Products */}
       <div className="bg-white rounded-lg shadow">
