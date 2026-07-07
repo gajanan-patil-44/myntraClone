@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import ProductCard from "../components/ProductCard";
-import { useParams } from "react-router-dom";
+import { useParams,useSearchParams  } from "react-router-dom";
 import { Range, getTrackBackground } from "react-range";
 import BrandFilterModal from "../components/BrandFilterModal";
 import CategoryFilterModal from "../components/CategoryFilterModal";
@@ -15,6 +15,10 @@ const ProductsPage = () => {
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [showBrandModal, setShowBrandModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+
+  const [searchParams] = useSearchParams();
+const searchTerm =
+  searchParams.get("search")?.toLowerCase().trim() || "";
 
   const [priceRange, setPriceRange] = useState({
     min: 0,
@@ -147,8 +151,15 @@ const ProductsPage = () => {
     const priceMatch =
       product.price >= selectedPrice[0] && product.price <= selectedPrice[1];
 
+      const searchMatch =
+  searchTerm === "" ||
+  product.name.toLowerCase().includes(searchTerm) ||
+  product.brand.toLowerCase().includes(searchTerm) ||
+  product.category.toLowerCase().includes(searchTerm) ||
+  product.subCategory.toLowerCase().includes(searchTerm);
+
     return (
-      subCategoryMatch && brandMatch && colorMatch && sizeMatch && priceMatch
+      subCategoryMatch && brandMatch && colorMatch && sizeMatch && priceMatch && searchMatch
     );
   });
 

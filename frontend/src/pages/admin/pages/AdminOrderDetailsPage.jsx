@@ -6,6 +6,7 @@ import {
   // updateOrderStatus,
   updateOrderItemStatus,
 } from "../../../store/slices/adminOrderThunks";
+import { toast } from "react-hot-toast";
 
 const AdminOrderDetailsPage = () => {
   const { id } = useParams();
@@ -52,9 +53,16 @@ const AdminOrderDetailsPage = () => {
         orderStatus: itemStatuses[itemId],
       }),
     );
-
     //   console.log("After Dispatch");
     // console.log(JSON.stringify(result, null, 2));
+
+     if (updateOrderItemStatus.fulfilled.match(result)) {
+    toast.success("Order item status updated successfully.");
+
+    dispatch(fetchAdminOrderById(id));
+  } else {
+    toast.error(result.payload || "Failed to update order item status.");
+  }
   };
 
   if (loading || !selectedOrder) {
@@ -291,7 +299,12 @@ const AdminOrderDetailsPage = () => {
                   <td className="px-4 py-3 text-center">
                     <button
                       onClick={() => handleItemStatusUpdate(item._id)}
-                      className="bg-pink-500 hover:bg-pink-600 text-white px-3 py-1 rounded"
+                      disabled={itemStatuses[item._id] === item.orderStatus}
+                      className={`px-3 py-1 rounded text-white ${
+                        itemStatuses[item._id] === item.orderStatus
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-pink-500 hover:bg-pink-600"
+                      }`}
                     >
                       Update
                     </button>

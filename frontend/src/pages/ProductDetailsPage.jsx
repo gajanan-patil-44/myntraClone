@@ -28,7 +28,7 @@ const ProductDetailsPage = () => {
 
   const { items: wishlistItems } = useSelector((state) => state.wishlist);
 
-  const isWishlisted = wishlistItems.some((item) => item._id === product._id);
+  const isWishlisted = wishlistItems.some((item) => item._id === product?._id);
   const { addresses } = useSelector((state) => state.address);
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
@@ -131,6 +131,14 @@ const ProductDetailsPage = () => {
     month: "short",
     day: "2-digit",
   });
+
+  if (loading || !product) {
+  return (
+    <div className="max-w-7xl mx-auto py-20 text-center">
+      Loading...
+    </div>
+  );
+}
 
   return (
     <div className="max-w-[1400px] mx-auto px-6 py-8">
