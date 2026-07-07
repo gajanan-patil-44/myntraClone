@@ -1,12 +1,19 @@
 import { useDispatch } from "react-redux";
-import  logoutUser  from "../../../store/slices/authSlice";
+import { useNavigate } from "react-router-dom";
+import { logoutUser } from "../../../store/slices/authThunks";
+
+
 const AdminHeader = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
-  };
+  const handleLogout = async () => {
+  const resultAction = await dispatch(logoutUser());
 
+  if (logoutUser.fulfilled.match(resultAction)) {
+    navigate("/");
+  }
+};
   return (
     <header className="h-14 bg-white border-b flex items-center justify-between px-4">
       <div className="font-semibold">Admin Dashboard</div>

@@ -7,6 +7,7 @@ import {
   // updateOrderStatus,
   updateOrderItemStatus,
   getAdminOrderById,
+  getDashboardStats,
 } from "../controllers/orderController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import adminMiddleware from "../middleware/adminMiddleware.js";
@@ -18,19 +19,25 @@ router.get("/my", authMiddleware, getMyOrders);
 router.get("/admin/all", authMiddleware, adminMiddleware, getAllOrders);
 
 // router.patch(
-  //   "/admin/:id/status",
-  //   authMiddleware,
-  //   adminMiddleware,
-  //   updateOrderStatus,
-  // );
-  router.patch(
-    "/admin/:orderId/items/:itemId/status",
-    authMiddleware,
-    adminMiddleware,
-    updateOrderItemStatus
-  );
-  
-  router.get("/admin/:id", authMiddleware, adminMiddleware, getAdminOrderById);
-  router.get("/:id", authMiddleware, getOrderById);
+//   "/admin/:id/status",
+//   authMiddleware,
+//   adminMiddleware,
+//   updateOrderStatus,
+// );
+router.get(
+  "/admin/dashboard/stats",
+  authMiddleware,
+  adminMiddleware,
+  getDashboardStats,
+);
+router.patch(
+  "/admin/:orderId/items/:itemId/status",
+  authMiddleware,
+  adminMiddleware,
+  updateOrderItemStatus,
+);
+
+router.get("/admin/:id", authMiddleware, adminMiddleware, getAdminOrderById);
+router.get("/:id", authMiddleware, getOrderById);
 
 export default router;

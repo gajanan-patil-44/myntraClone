@@ -15,6 +15,7 @@ const AdminOrderDetailsPage = () => {
 
   // const [status, setStatus] = useState("");
   const [itemStatuses, setItemStatuses] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     dispatch(fetchAdminOrderById(id));

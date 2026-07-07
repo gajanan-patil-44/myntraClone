@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect,useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -10,6 +10,7 @@ import {
 const ProductListPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { products, loading, error } = useSelector(
     (state) => state.adminProduct,
@@ -33,6 +34,17 @@ const ProductListPage = () => {
     await dispatch(deleteProduct(id));
   };
 
+  const filteredProducts = products.filter((product) => {
+  const search = searchTerm.toLowerCase();
+
+  return (
+    product.name.toLowerCase().includes(search) ||
+    product.brand.toLowerCase().includes(search) ||
+    product.category.toLowerCase().includes(search) ||
+    product.subCategory.toLowerCase().includes(search)
+  );
+});
+
   return (
     <div className="p-6">
       {/* Header */}
@@ -46,6 +58,16 @@ const ProductListPage = () => {
           + Add Product
         </button>
       </div>
+
+      <div className="flex justify-between items-center mb-6">
+  <input
+    type="text"
+    placeholder="Search by product, brand, category..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="w-full md:w-96 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500"
+  />
+</div>
 
       {/* Loading */}
       {loading && (
@@ -76,7 +98,7 @@ const ProductListPage = () => {
             </thead>
 
             <tbody>
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <tr
                   key={product._id}
                   className="border-t hover:bg-gray-50 transition"

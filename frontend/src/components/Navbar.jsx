@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../store/slices/authThunks";
+
 import { fetchCart } from "../store/slices/cartThunks";
 import { fetchWishlist } from "../store/slices/wishlistThunks";
 

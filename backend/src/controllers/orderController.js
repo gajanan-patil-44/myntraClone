@@ -452,3 +452,62 @@ if (order.paymentMethod === "COD") {
     });
   }
 };
+
+export const getDashboardStats = async (req, res) => {
+  try {
+    const [
+  totalProducts,
+  totalOrders,
+  totalUsers,
+  revenueResult,
+  recentOrders,
+] = await Promise.all([
+  Product.countDocuments(),
+
+  Order.countDocuments(),
+
+  User.countDocuments({ role: "user" }),
+
+  Order.aggregate([
+    {
+      $match: {
+        paymentStatus: "paid",
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalRevenue: { $sum: "$totalPrice" },
+      },
+    },
+  ]),
+
+  Order.find()
+    .populate("userId", "firstName lastName email")
+    .sort({ createdAt: -1 })
+    .limit(5),
+]);
+
+const totalRevenue =
+  revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
+
+return res.status(200).json({
+  success: true,
+
+  stats: {
+    totalProducts,
+    totalOrders,
+    totalUsers,
+    totalRevenue,
+  },
+
+  recentOrders,
+});
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

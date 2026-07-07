@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import HomePage from "../pages/HomePage";
 import ProductsPage from "../pages/ProductsPage";
@@ -23,11 +25,21 @@ import AdminOrdersPage from "../pages/admin/pages/AdminOrdersPage";
 import AdminOrderDetailsPage from "../pages/admin/pages/AdminOrderDetailsPage";
 
 const AppRoutes = () => {
+  const { user } = useSelector((state) => state.auth);
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<MainLayout />}>
-          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/"
+            element={
+              user?.role === "admin" ? (
+                <Navigate to="/admin" replace />
+              ) : (
+                <HomePage />
+              )
+            }
+          />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/products/:category" element={<ProductsPage />} />
           <Route

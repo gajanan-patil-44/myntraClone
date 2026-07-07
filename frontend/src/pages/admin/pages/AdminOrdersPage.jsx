@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect,useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminOrders } from "../../../store/slices/adminOrderThunks";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,7 @@ const AdminOrdersPage = () => {
   const navigate = useNavigate();
 
   const { orders, loading } = useSelector((state) => state.adminOrder);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     dispatch(fetchAdminOrders());
@@ -17,12 +18,36 @@ const AdminOrdersPage = () => {
     return <div className="text-center mt-10 text-lg">Loading orders...</div>;
   }
 
+  const filteredOrders = orders.filter((order) => {
+  const search = searchTerm.toLowerCase();
+
+  return (
+    order._id.toLowerCase().includes(search) ||
+    order.userId?.email?.toLowerCase().includes(search) ||
+    `${order.userId?.firstName || ""} ${order.userId?.lastName || ""}`
+      .toLowerCase()
+      .includes(search) ||
+    order.orderItems.some((item) =>
+      item.name.toLowerCase().includes(search)
+    )
+  );
+});
+
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="flex items-center justify-between p-5 border-b">
         <h1 className="text-2xl font-bold">Order Management</h1>
 
         <span className="text-gray-500">Total Orders: {orders.length}</span>
+      </div>
+      <div className="mt-4 mb-6">
+        <input
+          type="text"
+          placeholder="Search by Order ID, Customer, Email or Product..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full md:w-96 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+        />
       </div>
 
       <div className="overflow-x-auto">
@@ -54,11 +79,9 @@ const AdminOrdersPage = () => {
                 </td>
               </tr>
             ) : (
-              orders.map((order) => (
+              filteredOrders.map((order) => (
                 <tr key={order._id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium">
-                    #{order._id}
-                  </td>
+                  <td className="px-4 py-3 font-medium">#{order._id}</td>
 
                   <td className="px-4 py-3">
                     <div className="font-medium">{order.userId?.email}</div>

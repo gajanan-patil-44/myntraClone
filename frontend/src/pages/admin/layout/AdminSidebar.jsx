@@ -26,10 +26,6 @@ const AdminSidebar = () => {
         <NavLink to="/admin/orders" className={linkClass}>
           Orders
         </NavLink>
-
-        <NavLink to="/admin/users" className={linkClass}>
-          Users
-        </NavLink>
       </nav>
     </aside>
   );

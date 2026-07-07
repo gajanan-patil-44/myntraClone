@@ -8,6 +8,7 @@ import { createProduct } from "../../../store/slices/adminProductThunks";
 const AddProductPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { createLoading } = useSelector(
     (state) => state.adminProduct
