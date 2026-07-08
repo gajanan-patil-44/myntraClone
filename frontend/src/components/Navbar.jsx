@@ -1,17 +1,23 @@
+///
 import { FiUser, FiHeart, FiShoppingBag, FiSearch } from "react-icons/fi";
 import { categories } from "../constants/categories";
 import { navbarCategories } from "../constants/navbarCategories";
 import myntraLogo from "../assets/myntraLogo.jpg";
 
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../store/slices/authThunks";
+
 import { fetchCart } from "../store/slices/cartThunks";
 import { fetchWishlist } from "../store/slices/wishlistThunks";
+import { clearWishlistState } from "../store/slices/wishlistSlice";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const searchInputRef = useRef(null);
+
   const dispatch = useDispatch();
 
   const [activeCategory, setActiveCategory] = useState(null);
@@ -42,6 +48,7 @@ const Navbar = () => {
     const resultAction = await dispatch(logoutUser());
 
     if (logoutUser.fulfilled.match(resultAction)) {
+      dispatch(clearWishlistState());
       setIsProfileMenuOpen(false);
       navigate("/");
     }
@@ -65,7 +72,10 @@ const Navbar = () => {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)] z-50 ">
+    <header
+      className="fixed top-0 left-0 right-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)] z-50 "
+      // onMouseLeave={() => setActiveCategory(null)}
+    >
       <nav className="max-w-7xl   h-[80px] flex items-center justify-between px-4 md:px-8 mx-auto">
         {/* Logo */}
         <Link to="/">
@@ -76,36 +86,84 @@ const Navbar = () => {
           />
         </Link>
 
-        {/* Categories */}
-        <ul className="hidden md:flex items-center gap-8 text-sm font-semibold uppercase">
-          {Object.keys(categories).map((category) => (
-            <Link to={`/products/${category}`} key={category}>
+        {/* Categories + Mega Menu */}
+        <div
+          className="relative hidden md:block"
+          onMouseLeave={() => setActiveCategory(null)}
+        >
+          <ul className="flex items-center gap-8 text-sm font-semibold uppercase">
+            {Object.keys(categories).map((category) => (
               <li
+                key={category}
                 className={`cursor-pointer h-full flex items-center border-b-4 transition-colors ${
                   activeCategory === category
                     ? "border-orange-400"
                     : "border-transparent"
                 }`}
-                onMouseEnter={() => {
-                  setActiveCategory(category);
-                }}
+                onMouseEnter={() => setActiveCategory(category)}
                 onClick={() => {
                   navigate(`/products/${category}`);
                   setActiveCategory(null);
                 }}
               >
-                {category}
+                <Link to={`/products/${category}`}>{category}</Link>
               </li>
-            </Link>
-          ))}
-        </ul>
+            ))}
+          </ul>
+
+          {activeCategory && (
+            <div className="absolute top-full left-0 bg-white shadow-xl z-50 w-[900px]">
+              <div className="px-12 py-10">
+                <div className="grid grid-cols-3 gap-2">
+                  {Object.entries(navbarCategories[activeCategory] || {}).map(
+                    ([section, items]) => (
+                      <div key={section}>
+                        <h3 className="font-bold text-pink-600 mb-3">
+                          {section}
+                        </h3>
+
+                        <ul className="space-y-2">
+                          {items.map((item) => (
+                            <li
+                              key={`${section}-${item}`}
+                              className="text-sm text-gray-700 hover:font-semibold cursor-pointer"
+                              onClick={() => {
+                                navigate(`/products/${activeCategory}/${item}`);
+                                setActiveCategory(null);
+                              }}
+                            >
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Search */}
         <div className="hidden lg:flex items-center bg-gray-100 px-3 py-2 rounded-md flex-1 max-w-md">
           <FiSearch className="text-gray-500" />
           <input
+          ref={searchInputRef}
             type="text"
             placeholder="Search products..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && searchTerm.trim()) {
+                    const query = searchTerm.trim();
+                navigate(
+                  `/products?search=${encodeURIComponent(searchTerm.trim())}`,
+                );
+                setSearchTerm("");
+                searchInputRef.current?.blur();
+              }
+            }}
             className="bg-transparent outline-none ml-2 w-full"
           />
         </div>
@@ -194,12 +252,10 @@ const Navbar = () => {
         />
       )}
 
-      {/* Mega Menu */}
+      {/* Mega Menu
       {activeCategory && (
         <div
-          className="absolute top-full left-44 right-80 bg-white shadow-xl z-50"
-          onMouseEnter={() => setActiveCategory(activeCategory)}
-          onMouseLeave={() => setActiveCategory(null)}
+className="absolute top-full left-44 right-80 bg-red-300/40 shadow-xl z-50"          onMouseLeave={() => setActiveCategory(null)}
         >
           <div className="max-w-5xl mx-auto px-12 py-10">
             <div className="grid grid-cols-3 gap-2">
@@ -228,9 +284,11 @@ const Navbar = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </header>
   );
 };
 
 export default Navbar;
+
+///

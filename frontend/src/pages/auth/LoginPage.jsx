@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  clearAuthError,
-  resetOtpState,
-} from "../../store/slices/authSlice";
+import { clearAuthError, resetOtpState } from "../../store/slices/authSlice";
 import {
   loginUser,
   sendOtp,
@@ -15,8 +12,8 @@ const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { loading, error, isAuthenticated, otpSent } = useSelector(
-    (state) => state.auth
+  const { loading, error, isAuthenticated, otpSent, user } = useSelector(
+    (state) => state.auth,
   );
 
   const [loginMode, setLoginMode] = useState("password"); // password | otp
@@ -67,11 +64,17 @@ const LoginPage = () => {
       loginUser({
         email: formData.email,
         password: formData.password,
-      })
+      }),
     );
 
     if (loginUser.fulfilled.match(resultAction)) {
-      navigate("/");
+      const loggedInUser = resultAction.payload.user;
+
+      if (loggedInUser.role === "admin") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
     }
   };
 
@@ -85,7 +88,7 @@ const LoginPage = () => {
     await dispatch(
       sendOtp({
         email: formData.email.trim(),
-      })
+      }),
     );
   };
 
@@ -98,19 +101,21 @@ const LoginPage = () => {
       verifyOtpLogin({
         email: formData.email,
         otp: formData.otp,
-      })
+      }),
     );
 
     if (verifyOtpLogin.fulfilled.match(resultAction)) {
-      navigate("/");
+      const loggedInUser = resultAction.payload.user;
+
+  if (loggedInUser.role === "admin") {
+    navigate("/admin", { replace: true });
+  } else {
+    navigate("/", { replace: true });
+  }
     }
   };
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/");
-    }
-  }, [isAuthenticated, navigate]);
+ 
 
   useEffect(() => {
     return () => {

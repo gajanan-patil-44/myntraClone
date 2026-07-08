@@ -188,7 +188,7 @@ const OrderDetailsPage = () => {
 
                         <button
                           onClick={() => {
-                            console.log("Review button clicked");
+                            // console.log("Review button clicked");
 
                             setSelectedProduct({
                               ...item,
@@ -280,8 +280,8 @@ const OrderDetailsPage = () => {
                 <span className="text-[#696b79]">Payment Status</span>
 
                 <span
-                  className={`font-semibold capitalize ${
-                    selectedOrder.paymentStatus === "completed"
+                  className={`font-bold capitalize ${
+                    selectedOrder.paymentStatus === "paid"
                       ? "text-green-600"
                       : selectedOrder.paymentStatus === "failed"
                         ? "text-red-600"
@@ -305,16 +305,16 @@ const OrderDetailsPage = () => {
               </div>
 
               <div className="flex justify-between">
-  <span>Shipping</span>
+                <span>Shipping</span>
 
-  <span>
-    {selectedOrder.shippingPrice === 0 ? (
-      <span className="text-[#03a685]">FREE</span>
-    ) : (
-      `₹${selectedOrder.shippingPrice}`
-    )}
-  </span>
-</div>
+                <span>
+                  {selectedOrder.shippingPrice === 0 ? (
+                    <span className="text-[#03a685]">FREE</span>
+                  ) : (
+                    `₹${selectedOrder.shippingPrice}`
+                  )}
+                </span>
+              </div>
 
               <hr />
 
