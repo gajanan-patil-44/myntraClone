@@ -8,6 +8,7 @@ import { addToCart, fetchCart } from "../store/slices/cartThunks";
 import { fetchAddresses } from "../store/slices/addressThunks";
 import DeliveryAddressModal from "../components/product/DeliveryAddressModal";
 import { getProductReviews } from "../api/reviewApi";
+import { toast } from "react-hot-toast";
 
 import {
   fetchWishlist,
@@ -25,24 +26,49 @@ const ProductDetailsPage = () => {
   const [sizeError, setSizeError] = useState("");
 
   const { isAuthenticated } = useSelector((state) => state.auth);
-
   const { items: wishlistItems } = useSelector((state) => state.wishlist);
-
   const isWishlisted = wishlistItems.some((item) => item._id === product?._id);
+  const { items: cartItems } = useSelector((state) => state.cart);
+  const [selectedColor, setSelectedColor] = useState("");
+  // console.log(cartItems);
+  // const isInCart = cartItems.some(
+  //   (item) => item.productId === product?._id && item?.size === selectedSize
+  // );
+
   const { addresses } = useSelector((state) => state.address);
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [reviews, setReviews] = useState([]);
 
+  const hasSizes = product?.sizes?.length > 0;
+  const hasColors = product?.colors?.length > 0;
+  const isInCart = cartItems.some((item) => {
+    if (item.productId !== product?._id) return false;
+
+    if (hasSizes && item.size !== selectedSize) return false;
+
+    if (hasColors && item.color !== selectedColor) return false;
+
+    return true;
+  });
   //add to bag
   const handleAddToBag = async () => {
     if (!isAuthenticated) {
       navigate("/login");
       return;
     }
+    if (isInCart) {
+      navigate("/cart");
+      return;
+    }
 
-    if (!selectedSize) {
+    if (hasSizes && !selectedSize) {
       setSizeError("Please select a size");
+      return;
+    }
+
+    if (hasColors && !selectedColor) {
+      toast.error("Please select a color");
       return;
     }
 
@@ -52,8 +78,8 @@ const ProductDetailsPage = () => {
       addToCart({
         productId: product._id,
         quantity: 1,
-        size: selectedSize,
-        color: product.colors?.[0] || null,
+        size: hasSizes ? selectedSize : null,
+        color: hasColors ? selectedColor : null,
       }),
     );
 
@@ -133,12 +159,10 @@ const ProductDetailsPage = () => {
   });
 
   if (loading || !product) {
-  return (
-    <div className="max-w-7xl mx-auto py-20 text-center">
-      Loading...
-    </div>
-  );
-}
+    return (
+      <div className="max-w-7xl mx-auto py-20 text-center">Loading...</div>
+    );
+  }
 
   return (
     <div className="max-w-[1400px] mx-auto px-6 py-8">
@@ -266,12 +290,12 @@ const ProductDetailsPage = () => {
                   key={size}
                   type="button"
                   onClick={() => setSelectedSize(size)}
-                  className={`w-14 h-14 rounded-full border font-semibold transition-all
-          ${
-            selectedSize === size
-              ? "border-[#ff3f6c] bg-pink-50 text-[#ff3f6c]"
-              : "border-gray-300 hover:border-gray-900"
-          }`}
+                  className={`w-12 h-8 rounded-full border font-medium transition-all
+                  ${
+                    selectedSize === size
+                      ? "border-[#ff3f6c] bg-pink-50 text-[#ff3f6c]"
+                      : "border-gray-300 hover:border-gray-900"
+                  }`}
                 >
                   {size}
                 </button>
@@ -282,6 +306,43 @@ const ProductDetailsPage = () => {
             <p className="mt-3 text-sm text-red-500 font-medium">{sizeError}</p>
           )}
           {/* //</size section> */}
+          {/* Color Section */}
+          {/* Color Section */}
+          {product?.colors?.length > 0 && (
+            <div className="mt-8">
+              <h3 className="font-bold text-sm tracking-wide mb-4">
+                SELECT COLOR
+              </h3>
+
+              <div className="flex flex-wrap gap-4">
+                {product.colors.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => setSelectedColor(color)}
+                    title={color}
+                    className={`w-8 h-8 rounded-full border-1 transition-all flex items-center justify-center ${
+                      selectedColor === color
+                        ? "border-[#ff3f6c]"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    <span
+                      className="w-6 h-6 rounded-full border"
+                      style={{ backgroundColor: color.toLowerCase() }}
+                    />
+                  </button>
+                ))}
+              </div>
+
+              {selectedColor && (
+                <p className="mt-3 text-sm text-gray-600">
+                  Selected:{" "}
+                  <span className="font-semibold">{selectedColor}</span>
+                </p>
+              )}
+            </div>
+          )}
 
           {/* //<addToCart and wishlist> */}
           <div className="mt-6 flex gap-4">
@@ -290,7 +351,7 @@ const ProductDetailsPage = () => {
               onClick={handleAddToBag}
               className="cursor-pointer flex-1 h-14 bg-[#ff3f6c] hover:bg-[#ff527b] text-white font-bold rounded-md uppercase transition-colors"
             >
-              ADD TO BAG
+              {isInCart ? "GO TO BAG" : "ADD TO BAG"}{" "}
             </button>
 
             <button
@@ -475,7 +536,6 @@ const ProductDetailsPage = () => {
                         ✔ Verified Buyer
                       </span>
                     </div>
-                    
                   </div>
                 ))}
               </div>

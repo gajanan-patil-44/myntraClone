@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState } from "react";import { IoClose } from "react-icons/io5";
+import { useMemo, useRef, useState } from "react";
+import { IoClose } from "react-icons/io5";
 import { FiSearch } from "react-icons/fi";
 const CategoryFilterModal = ({
   open,
@@ -17,7 +18,6 @@ const CategoryFilterModal = ({
       .sort((a, b) => a[0].localeCompare(b[0]))
       .filter(([brand]) => brand.toLowerCase().includes(search.toLowerCase()));
   }, [categoryCounts, search]);
-
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[999]">
@@ -54,11 +54,11 @@ const CategoryFilterModal = ({
                 key={letter}
                 type="button"
                 onClick={() => {
-  letterRefs.current[letter]?.scrollIntoView({
-    behavior: "smooth",
-    block: "start",
-  });
-}}
+                  letterRefs.current[letter]?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+                }}
                 className="hover:text-[#ff3f6c] shrink-0"
               >
                 {letter}
@@ -68,51 +68,45 @@ const CategoryFilterModal = ({
         </div>
 
         <div className="flex-1 overflow-auto px-5 py-4">
-  <div
-    className="grid gap-x-10"
-    style={{
-      gridAutoFlow: "column",
-      gridTemplateRows: "repeat(14, auto)",
-      gridAutoColumns: "240px",
-      width: "max-content",
-    }}
-  >
-    {brands.map(([brand, count], index) => {
-  const currentLetter = brand[0].toUpperCase();
+          <div
+            className="grid gap-x-10"
+            style={{
+              gridAutoFlow: "column",
+              gridTemplateRows: "repeat(14, auto)",
+              gridAutoColumns: "240px",
+              width: "max-content",
+            }}
+          >
+            {brands.map(([brand, count], index) => {
+              const currentLetter = brand[0].toUpperCase();
 
-  const previousLetter =
-    index === 0
-      ? ""
-      : brands[index - 1][0][0].toUpperCase();
+              const previousLetter =
+                index === 0 ? "" : brands[index - 1][0][0].toUpperCase();
 
-  return (
-      <label
-  key={brand}
-  ref={
-    previousLetter !== currentLetter
-      ? (el) => (letterRefs.current[currentLetter] = el)
-      : null
-  }
-  className="flex items-center gap-3 py-2 cursor-pointer text-sm whitespace-nowrap"
->
-        <input
-          type="checkbox"
-          checked={selectedSubCategories.includes(brand)}
-          onChange={() => handleSubCategoryChange(brand)}
-        />
+              return (
+                <label
+                  key={brand}
+                  ref={
+                    previousLetter !== currentLetter
+                      ? (el) => (letterRefs.current[currentLetter] = el)
+                      : null
+                  }
+                  className="flex items-center gap-3 py-2 cursor-pointer text-sm whitespace-nowrap"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedSubCategories.includes(brand)}
+                    onChange={() => handleSubCategoryChange(brand)}
+                  />
 
-        <span className="flex-1">
-          {brand}
-        </span>
+                  <span className="flex-1">{brand}</span>
 
-        <span className="text-gray-400 text-xs">
-          ({count})
-        </span>
-      </label>
-);
-})}
-  </div>
-</div>
+                  <span className="text-gray-400 text-xs">({count})</span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );

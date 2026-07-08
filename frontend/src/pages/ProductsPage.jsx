@@ -15,6 +15,7 @@ const ProductsPage = () => {
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [showBrandModal, setShowBrandModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showSizeDropdown, setShowSizeDropdown] = useState(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const searchTerm = searchParams.get("search")?.toLowerCase().trim() || "";
@@ -285,7 +286,7 @@ const ProductsPage = () => {
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 py-4">
+              <div className="border-t border-gray-200 py-4 mr-5">
                 <h3 className="text-sm font-bold uppercase mb-5">Price</h3>
                 {priceRange.max > 0 && (
                   <Range
@@ -301,7 +302,7 @@ const ProductsPage = () => {
                         <div
                           key={key}
                           {...trackProps}
-                          className="h-2 w-full rounded-full"
+                          className="h-1 w-full rounded-full"
                           style={{
                             background: getTrackBackground({
                               values: selectedPrice,
@@ -346,15 +347,21 @@ const ProductsPage = () => {
                     .map(([color, count]) => (
                       <label
                         key={color}
-                        className="flex items-center gap-2 text-sm cursor-pointer"
+                        className="flex items-center gap-3 py-1 cursor-pointer group"
                       >
                         <input
                           type="checkbox"
                           checked={selectedColors.includes(color)}
                           onChange={() => handleColorChange(color)}
+                          // className="w-4 h-4 accent-pink-500"
                         />
 
-                        <span>
+                        <span
+                          className="w-5 h-5 rounded-full border border-gray-300 flex-shrink-0"
+                          style={{ backgroundColor: color.toLowerCase() }}
+                        />
+
+                        <span className="text-sm text-gray-800 group-hover:text-black">
                           {color}
                           <span className="text-gray-400 ml-1">({count})</span>
                         </span>
@@ -396,10 +403,40 @@ const ProductsPage = () => {
             <div className="flex items-center justify-between border-b border-gray-200 pb-4 mb-6">
               {/* Left Side */}
 
-              <div className="flex items-center gap-6">
-                <button className="text-sm text-gray-700 hover:text-black">
-                  Size ▼
+              <div className="relative">
+                <button
+                  onClick={() => setShowSizeDropdown(!showSizeDropdown)}
+                  className={`px-4 py-2 rounded-full text-sm border transition ${
+                    showSizeDropdown
+                      ? "border-pink-500 bg-pink-50"
+                      : "border-gray-300 bg-white"
+                  }`}
+                >
+                  Size {showSizeDropdown ? "▲" : "▼"}
                 </button>
+
+                {showSizeDropdown && (
+                  <div className="mt-3 w-full bg-white border border-gray-200 shadow-md rounded-md p-6">
+                    <div className="grid grid-cols-8 gap-y-4">
+                      {Object.keys(sizeCounts)
+                        .sort()
+                        .map((size) => (
+                          <label
+                            key={size}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedSizes.includes(size)}
+                              onChange={() => handleSizeChange(size)}
+                            />
+
+                            <span className="text-sm">{size}</span>
+                          </label>
+                        ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Right Side */}
