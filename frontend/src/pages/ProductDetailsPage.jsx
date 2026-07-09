@@ -51,6 +51,15 @@ const ProductDetailsPage = () => {
 
     return true;
   });
+  const ratingDistribution = [5, 4, 3, 2, 1].map((star) => {
+    const count = reviews.filter((review) => review.rating === star).length;
+
+    return {
+      star,
+      count,
+      percentage: reviews.length === 0 ? 0 : (count / reviews.length) * 100,
+    };
+  });
   //add to bag
   const handleAddToBag = async () => {
     if (!isAuthenticated) {
@@ -458,20 +467,15 @@ const ProductDetailsPage = () => {
             </div>
 
             <div className="flex-1 max-w-md space-y-2">
-              {[5, 4, 3, 2, 1].map((star) => (
-                <div key={star} className="flex items-center gap-3">
-                  <span className="text-sm w-6">{star}★</span>
+              {ratingDistribution.map((item) => (
+                <div key={item.star} className="flex items-center gap-3">
+                  <span className="text-sm w-6">{item.star}★</span>
 
                   <div className="flex-1 h-2 bg-gray-200 rounded">
                     <div
                       className="h-2 bg-[#03a685] rounded"
                       style={{
-                        width:
-                          star <= Math.round(product.averageRating)
-                            ? "90%"
-                            : star === Math.ceil(product.averageRating)
-                              ? "50%"
-                              : "20%",
+                        width: `${item.percentage}%`,
                       }}
                     />
                   </div>
