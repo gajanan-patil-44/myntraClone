@@ -1,6 +1,23 @@
 import Review from "../models/Review.js";
 import Product from "../models/Product.js";
 
+const updateProductRating = async (productId) => {
+  const reviews = await Review.find({ productId });
+
+  const reviewsCount = reviews.length;
+
+  const averageRating =
+    reviewsCount === 0
+      ? 0
+      : reviews.reduce((sum, review) => sum + review.rating, 0) /
+        reviewsCount;
+
+  await Product.findByIdAndUpdate(productId, {
+    averageRating: Number(averageRating.toFixed(1)),
+    reviewsCount,
+  });
+};
+
 export const getProductReviews = async (req, res) => {
   try {
     const { productId } = req.params;
@@ -46,6 +63,7 @@ export const createOrUpdateReview = async (req, res) => {
         comment,
       });
     }
+    await updateProductRating(productId);
 
     return res.status(200).json({
       success: true,
@@ -89,6 +107,7 @@ export const updateRating = async (req, res) => {
         comment: "",
       });
     }
+    await updateProductRating(productId);
 
     return res.status(200).json({
       success: true,
