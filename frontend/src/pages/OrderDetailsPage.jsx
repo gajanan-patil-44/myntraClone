@@ -48,7 +48,6 @@ const OrderDetailsPage = () => {
     );
 
     dispatch(fetchMyReviews());
-
     setShowReviewModal(false);
     setSelectedProduct(null);
   };
