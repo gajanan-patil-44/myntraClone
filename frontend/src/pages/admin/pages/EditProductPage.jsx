@@ -59,6 +59,9 @@ const EditProductPage = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    if (name === "stock" && Number(value) < 0) {
+  return;
+}
 
     setFormData((prev) => ({
       ...prev,
@@ -391,6 +394,7 @@ const EditProductPage = () => {
               <input
                 type="number"
                 name="stock"
+                 min="0"
                 value={formData.stock}
                 onChange={handleChange}
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
