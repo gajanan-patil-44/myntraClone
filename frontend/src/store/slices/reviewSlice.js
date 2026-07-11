@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { updateRating, saveReview , fetchMyReviews} from "./reviewThunks";
+import { updateRating, saveReview, fetchMyReviews } from "./reviewThunks";
 
 const initialState = {
   loading: false,
@@ -25,10 +25,11 @@ const reviewSlice = createSlice({
 
       .addCase(updateRating.fulfilled, (state, action) => {
         state.loading = false;
-
         const review = action.payload;
-
         state.ratings[review.productId] = review.rating;
+        if (state.reviews[review.productId]) {
+          state.reviews[review.productId].rating = review.rating;
+        }
       })
 
       .addCase(updateRating.rejected, (state, action) => {
@@ -45,17 +46,16 @@ const reviewSlice = createSlice({
 
       .addCase(saveReview.fulfilled, (state, action) => {
         state.loading = false;
-
         const review = action.payload;
-
         state.ratings[review.productId] = review.rating;
+        state.reviews[review.productId] = review;
       })
 
       .addCase(saveReview.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-            // ---------------- FETCH MY REVIEWS ----------------
+      // ---------------- FETCH MY REVIEWS ----------------
 
       .addCase(fetchMyReviews.pending, (state) => {
         state.loading = true;

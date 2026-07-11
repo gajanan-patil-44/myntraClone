@@ -7,6 +7,7 @@ import { fetchOrderById } from "../store/slices/orderThunks";
 import StarRating from "../components/review/StarRating";
 import ReviewModal from "../components/review/ReviewModal";
 import OrderItemTracker from "../components/orders/OrderItemTracker";
+import { toast } from "react-hot-toast";
 
 import {
   fetchMyReviews,
@@ -34,6 +35,10 @@ const OrderDetailsPage = () => {
   }, [dispatch, id]);
 
   const handleSubmitReview = async ({ rating, comment }) => {
+    if (!comment.trim()) {
+  toast.error("Please write a review.");
+  return;
+}
     await dispatch(
       saveReview({
         productId: selectedProduct.productId,
@@ -43,7 +48,6 @@ const OrderDetailsPage = () => {
     );
 
     dispatch(fetchMyReviews());
-
     setShowReviewModal(false);
     setSelectedProduct(null);
   };
