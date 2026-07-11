@@ -14,6 +14,7 @@ import { CheckoutPage } from "../pages/CheckoutPage";
 import PaymentPage from "../pages/PaymentPage";
 import MyOrdersPage from "../pages/MyOrdersPage";
 import OrderDetailsPage from "../pages/OrderDetailsPage";
+import ScrollToTop from "../components/ScrollToTop";
 
 import AdminProtectedRoute from "./AdminProtectedRoute";
 import AdminLayout from "../pages/admin/layout/AdminLayout";
@@ -28,6 +29,7 @@ const AppRoutes = () => {
   const { user } = useSelector((state) => state.auth);
   return (
     <BrowserRouter>
+     <ScrollToTop />
       <Routes>
         <Route element={<MainLayout />}>
           <Route

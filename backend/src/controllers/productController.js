@@ -130,7 +130,7 @@ export const createProduct = async (req, res) => {
   }
 };
 
-//update product - admin only
+//update product - a  dmin only
 export const updateProduct = async (req, res) => {
   try {
 
@@ -158,12 +158,20 @@ export const updateProduct = async (req, res) => {
       });
     }
 
+    const updateData = { ...req.body };
+    if (
+  updateData.stock !== undefined &&
+  Number(updateData.stock) === 0
+) {
+  updateData.isActive = false;
+}
+
     const updatedProduct =
       await Product.findByIdAndUpdate(
         id,
-        req.body,
+        updateData,
         {
-          new: true,
+          returnDocument: "after",
           runValidators: true,
         }
       );
