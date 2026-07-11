@@ -1,4 +1,4 @@
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -35,15 +35,15 @@ const ProductListPage = () => {
   };
 
   const filteredProducts = products.filter((product) => {
-  const search = searchTerm.toLowerCase();
+    const search = searchTerm.toLowerCase();
 
-  return (
-    product.name.toLowerCase().includes(search) ||
-    product.brand.toLowerCase().includes(search) ||
-    product.category.toLowerCase().includes(search) ||
-    product.subCategory.toLowerCase().includes(search)
-  );
-});
+    return (
+      product.name.toLowerCase().includes(search) ||
+      product.brand.toLowerCase().includes(search) ||
+      product.category.toLowerCase().includes(search) ||
+      product.subCategory.toLowerCase().includes(search)
+    );
+  });
 
   return (
     <div className="p-6">
@@ -60,14 +60,14 @@ const ProductListPage = () => {
       </div>
 
       <div className="flex justify-between items-center mb-6">
-  <input
-    type="text"
-    placeholder="Search by product, brand, category..."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    className="w-full md:w-96 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500"
-  />
-</div>
+        <input
+          type="text"
+          placeholder="Search by product, brand, category..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full md:w-96 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500"
+        />
+      </div>
 
       {/* Loading */}
       {loading && (
@@ -85,15 +85,16 @@ const ProductListPage = () => {
       {!loading && !error && (
         <div className="bg-white rounded-xl shadow overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-100">
+            <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="text-left px-4 py-3">Image</th>
-                <th className="text-left px-4 py-3">Product</th>
-                <th className="text-left px-4 py-3">Brand</th>
-                <th className="text-left px-4 py-3">Price</th>
-                <th className="text-left px-4 py-3">Stock</th>
-                <th className="text-left px-4 py-3">Status</th>
-                <th className="text-center px-4 py-3">Actions</th>
+                <th className="text-left px-4 py-4">Image</th>
+                <th className="text-left px-4 py-4">Product</th>
+                <th className="text-left px-4 py-4">Brand</th>
+                <th className="text-left px-4 py-4">Price</th>
+                <th className="text-left px-4 py-4">Stock</th>
+                <th className="text-left px-4 py-4">Inventory</th>
+                <th className="text-left px-4 py-4">Status</th>
+                <th className="text-center px-4 py-4">Actions</th>
               </tr>
             </thead>
 
@@ -101,10 +102,13 @@ const ProductListPage = () => {
               {filteredProducts.map((product) => (
                 <tr
                   key={product._id}
+                  onClick={() =>
+                    navigate(`/admin/products/edit/${product._id}`)
+                  }
                   className="border-t hover:bg-gray-50 transition"
                 >
                   {/* Image */}
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-4">
                     <img
                       src={product.images?.[0]}
                       alt={product.name}
@@ -113,21 +117,46 @@ const ProductListPage = () => {
                   </td>
 
                   {/* Name */}
-                  <td className="px-4 py-3 font-medium text-gray-800">
+                  <td className="px-4 py-4 font-medium text-gray-800">
                     {product.name}
                   </td>
 
                   {/* Brand */}
-                  <td className="px-4 py-3">{product.brand}</td>
+                  <td className="px-4 py-4">{product.brand}</td>
 
                   {/* Price */}
-                  <td className="px-4 py-3 font-semibold">₹{product.price}</td>
+                  <td className="px-4 py-4 font-semibold">₹{product.price}</td>
 
                   {/* Stock */}
-                  <td className="px-4 py-3">{product.stock}</td>
-
+                  <td
+                    className={`px-4 py-4 font-semibold ${
+                      product.stock === 0
+                        ? "text-red-600"
+                        : product.stock <= 5
+                          ? "text-orange-500"
+                          : "text-green-600"
+                    }`}
+                  >
+                    {product.stock}
+                  </td>
+                  {/* Inventory */}
+                  <td className="px-4 py-4">
+                    {product.stock === 0 ? (
+                      <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-medium">
+                        Out of Stock
+                      </span>
+                    ) : product.stock <= 5 ? (
+                      <span className="px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-sm font-medium">
+                        Low Stock
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium">
+                        In Stock
+                      </span>
+                    )}
+                  </td>
                   {/* Status */}
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-4 bg">
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-medium ${
                         product.isActive
@@ -140,33 +169,21 @@ const ProductListPage = () => {
                   </td>
 
                   {/* Actions */}
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-4">
                     <div className="flex justify-center gap-2">
                       <button
-                        onClick={() =>
-                          navigate(`/admin/products/edit/${product._id}`)
-                        }
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
-                      >
-                        Edit
-                      </button>
-
-                      <button
                         onClick={() => handleToggle(product._id)}
-                        className={`px-3 py-1 rounded text-white transition ${
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggle(product._id);
+                        }}
+                        className={`px-4 py-1 rounded text-white transition ${
                           product.isActive
                             ? "bg-yellow-500 hover:bg-yellow-600"
                             : "bg-green-600 hover:bg-green-700"
                         }`}
                       >
-                        {product.isActive ? "Disable" : "Enable"}
-                      </button>
-
-                      <button
-                        onClick={() => handleDelete(product._id)}
-                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded transition"
-                      >
-                        Delete
+                        {product.isActive ? "In-Active" : "Active"}
                       </button>
                     </div>
                   </td>
@@ -175,7 +192,7 @@ const ProductListPage = () => {
 
               {products.length === 0 && (
                 <tr>
-                  <td colSpan="7" className="text-center py-8 text-gray-500">
+                  <td colSpan="8" className="text-center py-8 text-gray-500">
                     No products found.
                   </td>
                 </tr>
