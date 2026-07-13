@@ -10,9 +10,7 @@ const AddProductPage = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { createLoading } = useSelector(
-    (state) => state.adminProduct
-  );
+  const { createLoading } = useSelector((state) => state.adminProduct);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -24,24 +22,20 @@ const AddProductPage = () => {
     stock: "",
     sizes: "",
     colors: "",
-    image1: "",
-    image2: "",
-    image3: "",
+    images: [],
     description: "",
     isActive: true,
   });
 
   const [errors, setErrors] = useState({});
+  
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        type === "checkbox"
-          ? checked
-          : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
 
     if (name === "category") {
@@ -63,32 +57,24 @@ const AddProductPage = () => {
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.name.trim())
-      newErrors.name = "Product name is required";
+    if (!formData.name.trim()) newErrors.name = "Product name is required";
 
-    if (!formData.brand.trim())
-      newErrors.brand = "Brand is required";
+    if (!formData.brand.trim()) newErrors.brand = "Brand is required";
 
-    if (!formData.category)
-      newErrors.category = "Category is required";
+    if (!formData.category) newErrors.category = "Category is required";
 
     if (!formData.subCategory)
-      newErrors.subCategory =
-        "Sub Category is required";
+      newErrors.subCategory = "Sub Category is required";
 
-    if (!formData.price)
-      newErrors.price = "Price is required";
+    if (!formData.price) newErrors.price = "Price is required";
 
-    if (!formData.stock)
-      newErrors.stock = "Stock is required";
+    if (!formData.stock) newErrors.stock = "Stock is required";
 
     if (!formData.description.trim())
-      newErrors.description =
-        "Description is required";
+      newErrors.description = "Description is required";
 
-    if (!formData.image1.trim())
-      newErrors.image1 =
-        "At least one image is required";
+    if (formData.images.length === 0)
+      newErrors.images = "At least one image is required";
 
     setErrors(newErrors);
 
@@ -106,8 +92,7 @@ const AddProductPage = () => {
       category: formData.category,
       subCategory: formData.subCategory,
       price: Number(formData.price),
-      discountPrice:
-        Number(formData.discountPrice) || 0,
+      discountPrice: Number(formData.discountPrice) || 0,
       stock: Number(formData.stock),
 
       sizes: formData.sizes
@@ -120,19 +105,13 @@ const AddProductPage = () => {
         .map((item) => item.trim())
         .filter(Boolean),
 
-      images: [
-        formData.image1,
-        formData.image2,
-        formData.image3,
-      ].filter(Boolean),
+      images: formData.images,
 
       description: formData.description,
       isActive: formData.isActive,
     };
 
-    const result = await dispatch(
-      createProduct(payload)
-    );
+    const result = await dispatch(createProduct(payload));
 
     if (createProduct.fulfilled.match(result)) {
       navigate("/admin/products");
@@ -141,23 +120,14 @@ const AddProductPage = () => {
 
   return (
     <div className="max-w-6xl mx-auto bg-white rounded-xl shadow p-8">
-      <h1 className="text-3xl font-bold mb-8">
-        Add Product
-      </h1>
+      <h1 className="text-3xl font-bold mb-8">Add Product</h1>
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-6"
-      >
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Row 1 */}
 
         <div className="grid grid-cols-2 gap-6">
-
           <div>
-
-            <label className="block mb-2 font-medium">
-              Product Name
-            </label>
+            <label className="block mb-2 font-medium">Product Name</label>
 
             <input
               type="text"
@@ -168,18 +138,12 @@ const AddProductPage = () => {
             />
 
             {errors.name && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.name}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
             )}
-
           </div>
 
           <div>
-
-            <label className="block mb-2 font-medium">
-              Brand
-            </label>
+            <label className="block mb-2 font-medium">Brand</label>
 
             <input
               type="text"
@@ -190,23 +154,15 @@ const AddProductPage = () => {
             />
 
             {errors.brand && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.brand}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.brand}</p>
             )}
-
           </div>
-
         </div>
-                {/* Row 2 */}
+        {/* Row 2 */}
 
         <div className="grid grid-cols-2 gap-6">
-
           <div>
-
-            <label className="block mb-2 font-medium">
-              Category
-            </label>
+            <label className="block mb-2 font-medium">Category</label>
 
             <select
               name="category"
@@ -217,28 +173,19 @@ const AddProductPage = () => {
               <option value="">Select Category</option>
 
               {Object.keys(categories).map((category) => (
-                <option
-                  key={category}
-                  value={category}
-                >
+                <option key={category} value={category}>
                   {category}
                 </option>
               ))}
             </select>
 
             {errors.category && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.category}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.category}</p>
             )}
-
           </div>
 
           <div>
-
-            <label className="block mb-2 font-medium">
-              Sub Category
-            </label>
+            <label className="block mb-2 font-medium">Sub Category</label>
 
             <select
               name="subCategory"
@@ -246,40 +193,27 @@ const AddProductPage = () => {
               onChange={handleChange}
               className="w-full border rounded-lg px-4 py-2"
             >
-              <option value="">
-                Select Sub Category
-              </option>
+              <option value="">Select Sub Category</option>
 
               {formData.category &&
                 categories[formData.category]?.map((sub) => (
-                  <option
-                    key={sub}
-                    value={sub}
-                  >
+                  <option key={sub} value={sub}>
                     {sub}
                   </option>
                 ))}
             </select>
 
             {errors.subCategory && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.subCategory}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.subCategory}</p>
             )}
-
           </div>
-
         </div>
 
         {/* Row 3 */}
 
         <div className="grid grid-cols-3 gap-6">
-
           <div>
-
-            <label className="block mb-2 font-medium">
-              Price
-            </label>
+            <label className="block mb-2 font-medium">Price</label>
 
             <input
               type="number"
@@ -290,18 +224,12 @@ const AddProductPage = () => {
             />
 
             {errors.price && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.price}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.price}</p>
             )}
-
           </div>
 
           <div>
-
-            <label className="block mb-2 font-medium">
-              Discount Price
-            </label>
+            <label className="block mb-2 font-medium">Discount Price</label>
 
             <input
               type="number"
@@ -310,14 +238,10 @@ const AddProductPage = () => {
               onChange={handleChange}
               className="w-full border rounded-lg px-4 py-2"
             />
-
           </div>
 
           <div>
-
-            <label className="block mb-2 font-medium">
-              Stock
-            </label>
+            <label className="block mb-2 font-medium">Stock</label>
 
             <input
               type="number"
@@ -328,21 +252,15 @@ const AddProductPage = () => {
             />
 
             {errors.stock && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.stock}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.stock}</p>
             )}
-
           </div>
-
         </div>
 
         {/* Row 4 */}
 
         <div className="grid grid-cols-2 gap-6">
-
           <div>
-
             <label className="block mb-2 font-medium">
               Sizes (comma separated)
             </label>
@@ -355,11 +273,9 @@ const AddProductPage = () => {
               placeholder="S,M,L or 7,8,9"
               className="w-full border rounded-lg px-4 py-2"
             />
-
           </div>
 
           <div>
-
             <label className="block mb-2 font-medium">
               Colors (comma separated)
             </label>
@@ -372,77 +288,34 @@ const AddProductPage = () => {
               placeholder="Black,Blue,White"
               className="w-full border rounded-lg px-4 py-2"
             />
-
           </div>
-
         </div>
 
         {/* Row 5 */}
+        <div>
+          <label className="block mb-2 font-medium">Product Images</label>
 
-        <div className="grid grid-cols-1 gap-4">
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                images: Array.from(e.target.files),
+              }))
+            }
+            className="w-full border rounded-lg px-4 py-2"
+          />
 
-          <div>
-
-            <label className="block mb-2 font-medium">
-              Image URL 1
-            </label>
-
-            <input
-              type="text"
-              name="image1"
-              value={formData.image1}
-              onChange={handleChange}
-              className="w-full border rounded-lg px-4 py-2"
-            />
-
-            {errors.image1 && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.image1}
-              </p>
-            )}
-
-          </div>
-
-          <div>
-
-            <label className="block mb-2 font-medium">
-              Image URL 2
-            </label>
-
-            <input
-              type="text"
-              name="image2"
-              value={formData.image2}
-              onChange={handleChange}
-              className="w-full border rounded-lg px-4 py-2"
-            />
-
-          </div>
-
-          <div>
-
-            <label className="block mb-2 font-medium">
-              Image URL 3
-            </label>
-
-            <input
-              type="text"
-              name="image3"
-              value={formData.image3}
-              onChange={handleChange}
-              className="w-full border rounded-lg px-4 py-2"
-            />
-
-          </div>
-
+          {errors.images && (
+            <p className="text-red-500 text-sm mt-1">{errors.images}</p>
+          )}
         </div>
-                {/* Row 6 */}
+        {/* Row 6 */}
 
         <div>
-
-          <label className="block mb-2 font-medium">
-            Description
-          </label>
+          <label className="block mb-2 font-medium">Description</label>
 
           <textarea
             name="description"
@@ -453,17 +326,13 @@ const AddProductPage = () => {
           />
 
           {errors.description && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.description}
-            </p>
+            <p className="text-red-500 text-sm mt-1">{errors.description}</p>
           )}
-
         </div>
 
         {/* Row 7 */}
 
         <div className="flex items-center gap-3">
-
           <input
             type="checkbox"
             id="isActive"
@@ -473,19 +342,14 @@ const AddProductPage = () => {
             className="w-5 h-5"
           />
 
-          <label
-            htmlFor="isActive"
-            className="font-medium"
-          >
+          <label htmlFor="isActive" className="font-medium">
             Product Active
           </label>
-
         </div>
 
         {/* Buttons */}
 
         <div className="flex justify-end gap-4 pt-4">
-
           <button
             type="button"
             onClick={() => navigate("/admin/products")}
@@ -501,11 +365,8 @@ const AddProductPage = () => {
           >
             {createLoading ? "Saving..." : "Save Product"}
           </button>
-
         </div>
-
       </form>
-
     </div>
   );
 };

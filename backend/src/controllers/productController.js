@@ -1,9 +1,10 @@
 import Product from "../models/Product.js";
+import uploadToCloudinary from "../utils/uploadToCloudinary.js";
 
 //for all active products (public)
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find({isActive: true});
+    const products = await Product.find({ isActive: true });
 
     return res.status(200).json({
       success: true,
@@ -21,7 +22,7 @@ export const getAllProducts = async (req, res) => {
 // Get all products for admin (includes active + inactive)
 export const getAllProductsAdmin = async (req, res) => {
   try {
-const products = await Product.find({}).sort({ createdAt: -1 });
+    const products = await Product.find({}).sort({ createdAt: -1 });
     return res.status(200).json({
       success: true,
       count: products.length,
@@ -41,8 +42,7 @@ export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const product = await Product.findOne(
-      { _id: id, isActive: true } );
+    const product = await Product.findOne({ _id: id, isActive: true });
 
     if (!product) {
       return res.status(404).json({
@@ -77,10 +77,19 @@ export const createProduct = async (req, res) => {
       stock,
       sizes,
       colors,
-      images,
       isActive,
     } = req.body;
+    const uploadedImages = [];
+    console.log("req.body:", req.body);
+    console.log("req.files:", req.files);
 
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const result = await uploadToCloudinary(file.buffer);
+        uploadedImages.push(result.secure_url);
+      }
+    }
+    console.log("uploadedImages:", uploadedImages);
     // Required fields validation
     if (
       !name ||
@@ -92,9 +101,7 @@ export const createProduct = async (req, res) => {
       price < 0 ||
       stock === undefined ||
       stock < 0 ||
-      !images ||
-      !Array.isArray(images) ||
-      images.length === 0
+      uploadedImages.length === 0
     ) {
       return res.status(400).json({
         success: false,
@@ -113,7 +120,7 @@ export const createProduct = async (req, res) => {
       stock,
       sizes,
       colors,
-      images,
+      images: uploadedImages,
       isActive,
     });
 
@@ -123,19 +130,20 @@ export const createProduct = async (req, res) => {
       product,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
+  console.error(error);
+
+  return res.status(500).json({
+    success: false,
+    message: error.message,
+  });
+}
 };
 
 //update product - a  dmin only
 export const updateProduct = async (req, res) => {
   try {
+    // console.log('UPDATE PRODUCT HIT');
 
-      // console.log('UPDATE PRODUCT HIT');
-      
     const { id } = req.params;
 
     const product = await Product.findById(id);
@@ -153,28 +161,19 @@ export const updateProduct = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message:
-          "averageRating and reviewsCount cannot be updated manually.",
+        message: "averageRating and reviewsCount cannot be updated manually.",
       });
     }
 
     const updateData = { ...req.body };
-    if (
-  updateData.stock !== undefined &&
-  Number(updateData.stock) === 0
-) {
-  updateData.isActive = false;
-}
+    if (updateData.stock !== undefined && Number(updateData.stock) === 0) {
+      updateData.isActive = false;
+    }
 
-    const updatedProduct =
-      await Product.findByIdAndUpdate(
-        id,
-        updateData,
-        {
-          returnDocument: "after",
-          runValidators: true,
-        }
-      );
+    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
+      returnDocument: "after",
+      runValidators: true,
+    });
 
     return res.status(200).json({
       success: true,
@@ -190,18 +189,13 @@ export const updateProduct = async (req, res) => {
 };
 
 // toggle product active status - admin only
-export const toggleProductStatus = async (
-  req,
-  res
-) => {
-
+export const toggleProductStatus = async (req, res) => {
   // console.log('TOGGLE HIT');
-  
+
   try {
     const { id } = req.params;
 
-    const product =
-      await Product.findById(id);
+    const product = await Product.findById(id);
 
     if (!product) {
       return res.status(404).json({
@@ -210,17 +204,14 @@ export const toggleProductStatus = async (
       });
     }
 
-    product.isActive =
-      !product.isActive;
+    product.isActive = !product.isActive;
 
     await product.save();
 
     return res.status(200).json({
       success: true,
       message: `Product ${
-        product.isActive
-          ? "activated"
-          : "deactivated"
+        product.isActive ? "activated" : "deactivated"
       } successfully.`,
       product,
     });
@@ -234,15 +225,11 @@ export const toggleProductStatus = async (
 
 // delete product = admin only
 
-export const deleteProduct = async (
-  req,
-  res
-) => {
+export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const product =
-      await Product.findById(id);
+    const product = await Product.findById(id);
 
     if (!product) {
       return res.status(404).json({
@@ -255,8 +242,7 @@ export const deleteProduct = async (
 
     return res.status(200).json({
       success: true,
-      message:
-        "Product deleted successfully.",
+      message: "Product deleted successfully.",
       product,
     });
   } catch (error) {

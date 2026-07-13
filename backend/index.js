@@ -13,6 +13,7 @@ import wishlistRoute from "./src/routes/wishlistRoute.js";
 import authRoute from "./src/routes/authRoute.js";
 import reviewRoute from "./src/routes/reviewRoute.js";
 import paymentRoute from "./src/routes/paymentRoute.js";
+
 dotenv.config();
 
 const app = express();
@@ -42,6 +43,7 @@ app.get("/", (req, res) => {
     message: "Myntra Clone API Running",
   });
 });
+
 
 const PORT = process.env.PORT || 5001;
 
