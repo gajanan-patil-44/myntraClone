@@ -1,5 +1,6 @@
 import Product from "../models/Product.js";
 import uploadToCloudinary from "../utils/uploadToCloudinary.js";
+import deleteFromCloudinary from "../utils/deleteFromCloudinary.js";
 
 //for all active products (public)
 export const getAllProducts = async (req, res) => {
@@ -130,13 +131,13 @@ export const createProduct = async (req, res) => {
       product,
     });
   } catch (error) {
-  console.error(error);
+    console.error(error);
 
-  return res.status(500).json({
-    success: false,
-    message: error.message,
-  });
-}
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 //update product - a  dmin only
@@ -166,6 +167,33 @@ export const updateProduct = async (req, res) => {
     }
 
     const updateData = { ...req.body };
+    // Existing image URLs coming from frontend
+    let existingImages = req.body.existingImages || [];
+
+    // If only one image was sent, convert it to an array
+    if (!Array.isArray(existingImages)) {
+      existingImages = [existingImages];
+    }
+
+    // Upload newly selected images
+    const uploadedImages = [];
+
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const result = await uploadToCloudinary(file.buffer);
+        uploadedImages.push(result.secure_url);
+      }
+    }
+// Delete removed Cloudinary images
+const removedImages = product.images.filter(
+  (image) => !existingImages.includes(image)
+);
+
+for (const image of removedImages) {
+  await deleteFromCloudinary(image);
+}
+    // Merge existing + newly uploaded images
+    updateData.images = [...existingImages, ...uploadedImages];
     if (updateData.stock !== undefined && Number(updateData.stock) === 0) {
       updateData.isActive = false;
     }
@@ -237,6 +265,11 @@ export const deleteProduct = async (req, res) => {
         message: "Product not found.",
       });
     }
+
+    // Delete Cloudinary images
+for (const image of product.images) {
+  await deleteFromCloudinary(image);
+}
 
     await Product.findByIdAndDelete(id);
 

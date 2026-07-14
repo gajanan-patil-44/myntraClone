@@ -22,7 +22,7 @@ router.get("/:id", getProductById);
 router.post("/",authMiddleware, adminMiddleware, upload.array("images", 10) ,createProduct); // This route protected and only accessible by admin.
 
 // (patch) UPDATE PRODUCT - ONLY ADMIN
-router.patch("/:id", authMiddleware, adminMiddleware, updateProduct); // This route protected and only accessible by admin.
+router.patch("/:id", authMiddleware, adminMiddleware, upload.array("images", 10), updateProduct); // This route protected and only accessible by admin.
 
 // PATCH TOGGLE PRODUCT ACTIVE STATUS - ONLY ADMIN
 

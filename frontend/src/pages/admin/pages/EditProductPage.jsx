@@ -3,8 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { categories } from "../../../constants/categories";
-import { updateProduct } from "../../../store/slices/adminProductThunks";
+import {
+  updateProduct,
+  deleteProduct,
+} from "../../../store/slices/adminProductThunks";
 import toast from "react-hot-toast";
+import ImageUploader from "../ImageUploader";
+import Swal from "sweetalert2";
 
 const EditProductPage = () => {
   const dispatch = useDispatch();
@@ -12,7 +17,7 @@ const EditProductPage = () => {
   const { id } = useParams();
 
   const { createLoading, products } = useSelector(
-    (state) => state.adminProduct
+    (state) => state.adminProduct,
   );
 
   const [formData, setFormData] = useState({
@@ -25,19 +30,18 @@ const EditProductPage = () => {
     stock: "",
     sizes: "",
     colors: "",
-    image1: "",
-    image2: "",
-    image3: "",
+    images: [],
     description: "",
     isActive: true,
   });
+  const [existingImages, setExistingImages] = useState([]);
 
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const product = products.find((p) => p._id === id);
-
     if (!product) return;
+    setExistingImages(product.images || []);
 
     setFormData({
       name: product.name,
@@ -49,9 +53,7 @@ const EditProductPage = () => {
       stock: product.stock,
       sizes: product.sizes.join(","),
       colors: product.colors.join(","),
-      image1: product.images[0] || "",
-      image2: product.images[1] || "",
-      image3: product.images[2] || "",
+      images: [],
       description: product.description,
       isActive: product.isActive,
     });
@@ -60,8 +62,8 @@ const EditProductPage = () => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (name === "stock" && Number(value) < 0) {
-  return;
-}
+      return;
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -87,39 +89,45 @@ const EditProductPage = () => {
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) 
-      {
-        toast.error("Product name is required");
-        newErrors.name = "Product name is required";
-      }
+    if (!formData.name.trim()) {
+      toast.error("Product name is required");
+      newErrors.name = "Product name is required";
+    }
 
-    if (!formData.brand.trim())
-      { toast.error("Brand is required");
-         newErrors.brand = "Brand is required";}
+    if (!formData.brand.trim()) {
+      toast.error("Brand is required");
+      newErrors.brand = "Brand is required";
+    }
 
-    if (!formData.category){
+    if (!formData.category) {
       toast.error("Category is required");
-      newErrors.category = "Category is required";}
+      newErrors.category = "Category is required";
+    }
 
-    if (!formData.subCategory)
-    {toast.error("Sub Category is required");
-      newErrors.subCategory = "Sub Category is required";}
+    if (!formData.subCategory) {
+      toast.error("Sub Category is required");
+      newErrors.subCategory = "Sub Category is required";
+    }
 
-    if (!formData.price)
-      { toast.error("Price is required");
-         newErrors.price = "Price is required";}
+    if (!formData.price) {
+      toast.error("Price is required");
+      newErrors.price = "Price is required";
+    }
 
-    if (!formData.stock){
+    if (!formData.stock) {
       toast.error("Stock is required");
-      newErrors.stock = "Stock is required";}
+      newErrors.stock = "Stock is required";
+    }
 
-    if (!formData.description.trim())
-      { toast.error("Description is required");
-        newErrors.description = "Description is required";}
+    if (!formData.description.trim()) {
+      toast.error("Description is required");
+      newErrors.description = "Description is required";
+    }
 
-    if (!formData.image1.trim())
-      { toast.error("At least one image is required");
-        newErrors.image1 = "At least one image is required";}
+    if (existingImages.length === 0 && formData.images.length === 0) {
+      toast.error("At least one image is required");
+      newErrors.images = "At least one image is required";
+    }
 
     setErrors(newErrors);
 
@@ -128,7 +136,7 @@ const EditProductPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-     console.log("Submit clicked");
+    console.log("Submit clicked");
 
     if (!validate()) return;
 
@@ -137,6 +145,8 @@ const EditProductPage = () => {
       brand: formData.brand,
       category: formData.category,
       subCategory: formData.subCategory,
+      existingImages,
+      images: formData.images,
       price: Number(formData.price),
       discountPrice: Number(formData.discountPrice) || 0,
       stock: Number(formData.stock),
@@ -151,12 +161,6 @@ const EditProductPage = () => {
         .map((item) => item.trim())
         .filter(Boolean),
 
-      images: [
-        formData.image1,
-        formData.image2,
-        formData.image3,
-      ].filter(Boolean),
-
       description: formData.description,
       isActive: formData.isActive,
     };
@@ -165,13 +169,36 @@ const EditProductPage = () => {
       updateProduct({
         id,
         productData: payload,
-      })
+      }),
     );
 
     if (updateProduct.fulfilled.match(result)) {
       navigate("/admin/products");
     }
   };
+  const handleDelete = async () => {
+  const result = await Swal.fire({
+    title: "Delete Product?",
+    text: "This will permanently delete the product and its uploaded images.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Yes, Delete",
+    cancelButtonText: "Cancel",
+  });
+
+  if (!result.isConfirmed) return;
+
+  const response = await dispatch(deleteProduct(id));
+
+  if (deleteProduct.fulfilled.match(response)) {
+    toast.success("Product deleted successfully");
+    navigate("/admin/products");
+  } else {
+    toast.error(response.payload || "Failed to delete product");
+  }
+};
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -184,28 +211,21 @@ const EditProductPage = () => {
           ← Back to Products
         </button>
 
-        <h1 className="text-3xl font-bold text-gray-900">
-          Edit Product
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900">Edit Product</h1>
 
         <p className="mt-2 text-gray-500">
           Manage and update product information.
         </p>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-8"
-      >
-
+      <form onSubmit={handleSubmit} className="space-y-8">
         {/* ===================== Basic Information ===================== */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-6">
             📦 Basic Information
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
             {/* Product Name */}
 
             <div>
@@ -222,9 +242,7 @@ const EditProductPage = () => {
               />
 
               {errors.name && (
-                <p className="text-red-500 text-sm mt-2">
-                  {errors.name}
-                </p>
+                <p className="text-red-500 text-sm mt-2">{errors.name}</p>
               )}
             </div>
 
@@ -244,9 +262,7 @@ const EditProductPage = () => {
               />
 
               {errors.brand && (
-                <p className="text-red-500 text-sm mt-2">
-                  {errors.brand}
-                </p>
+                <p className="text-red-500 text-sm mt-2">{errors.brand}</p>
               )}
             </div>
 
@@ -266,19 +282,14 @@ const EditProductPage = () => {
                 <option value="">Select Category</option>
 
                 {Object.keys(categories).map((category) => (
-                  <option
-                    key={category}
-                    value={category}
-                  >
+                  <option key={category} value={category}>
                     {category}
                   </option>
                 ))}
               </select>
 
               {errors.category && (
-                <p className="text-red-500 text-sm mt-2">
-                  {errors.category}
-                </p>
+                <p className="text-red-500 text-sm mt-2">{errors.category}</p>
               )}
             </div>
 
@@ -295,16 +306,11 @@ const EditProductPage = () => {
                 onChange={handleChange}
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
               >
-                <option value="">
-                  Select Sub Category
-                </option>
+                <option value="">Select Sub Category</option>
 
                 {formData.category &&
                   categories[formData.category]?.map((sub) => (
-                    <option
-                      key={sub}
-                      value={sub}
-                    >
+                    <option key={sub} value={sub}>
                       {sub}
                     </option>
                   ))}
@@ -316,12 +322,11 @@ const EditProductPage = () => {
                 </p>
               )}
             </div>
-
           </div>
         </div>
 
         {/* ===================== Pricing & Inventory ===================== */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-800">
               💰 Pricing & Inventory
@@ -332,20 +337,19 @@ const EditProductPage = () => {
                 Number(formData.stock) === 0
                   ? "bg-red-100 text-red-700"
                   : Number(formData.stock) <= 5
-                  ? "bg-orange-100 text-orange-700"
-                  : "bg-green-100 text-green-700"
+                    ? "bg-orange-100 text-orange-700"
+                    : "bg-green-100 text-green-700"
               }`}
             >
               {Number(formData.stock) === 0
                 ? "Out of Stock"
                 : Number(formData.stock) <= 5
-                ? "Low Stock"
-                : "In Stock"}
+                  ? "Low Stock"
+                  : "In Stock"}
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
             {/* Price */}
 
             <div>
@@ -362,9 +366,7 @@ const EditProductPage = () => {
               />
 
               {errors.price && (
-                <p className="text-red-500 text-sm mt-2">
-                  {errors.price}
-                </p>
+                <p className="text-red-500 text-sm mt-2">{errors.price}</p>
               )}
             </div>
 
@@ -394,32 +396,27 @@ const EditProductPage = () => {
               <input
                 type="number"
                 name="stock"
-                 min="0"
+                min="0"
                 value={formData.stock}
                 onChange={handleChange}
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
               />
 
               {errors.stock && (
-                <p className="text-red-500 text-sm mt-2">
-                  {errors.stock}
-                </p>
+                <p className="text-red-500 text-sm mt-2">{errors.stock}</p>
               )}
             </div>
-
           </div>
         </div>
 
         {/* ===================== Product Attributes ===================== */}
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-
           <h2 className="text-xl font-semibold text-gray-800 mb-6">
             🎨 Product Attributes
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
             {/* Sizes */}
 
             <div>
@@ -461,108 +458,32 @@ const EditProductPage = () => {
                 Separate multiple colors using commas.
               </p>
             </div>
-
           </div>
         </div>
 
         {/* ===================== Product Images ===================== */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
 
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-6">
             🖼 Product Images
           </h2>
 
-          {/* Image Preview */}
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-
-            {[formData.image1, formData.image2, formData.image3].map(
-              (image, index) => (
-                <div
-                  key={index}
-                  className="border rounded-xl overflow-hidden bg-gray-50"
-                >
-                  {image ? (
-                    <img
-                      src={image}
-                      alt={`Preview ${index + 1}`}
-                      className="w-full h-56 object-cover"
-                    />
-                  ) : (
-                    <div className="h-56 flex items-center justify-center text-gray-400">
-                      No Image
-                    </div>
-                  )}
-
-                  <div className="bg-white border-t px-4 py-3 text-center text-sm font-medium text-gray-600">
-                    Image {index + 1}
-                  </div>
-                </div>
-              )
-            )}
-
-          </div>
-
-          {/* Image URLs */}
-
-          <div className="space-y-5">
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Image URL 1
-              </label>
-
-              <input
-                type="text"
-                name="image1"
-                value={formData.image1}
-                onChange={handleChange}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-
-              {errors.image1 && (
-                <p className="text-red-500 text-sm mt-2">
-                  {errors.image1}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Image URL 2
-              </label>
-
-              <input
-                type="text"
-                name="image2"
-                value={formData.image2}
-                onChange={handleChange}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Image URL 3
-              </label>
-
-              <input
-                type="text"
-                name="image3"
-                value={formData.image3}
-                onChange={handleChange}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-
-          </div>
-
+          <ImageUploader
+            existingImages={existingImages}
+            setExistingImages={setExistingImages}
+            images={formData.images}
+            setImages={(images) =>
+              setFormData((prev) => ({
+                ...prev,
+                images,
+              }))
+            }
+          />
         </div>
 
         {/* ===================== Description ===================== */}
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-
           <h2 className="text-xl font-semibold text-gray-800 mb-6">
             📝 Product Description
           </h2>
@@ -577,16 +498,12 @@ const EditProductPage = () => {
           />
 
           {errors.description && (
-            <p className="text-red-500 text-sm mt-2">
-              {errors.description}
-            </p>
+            <p className="text-red-500 text-sm mt-2">{errors.description}</p>
           )}
-
         </div>
 
         {/* ===================== Product Status ===================== */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-6">
             ⚙ Product Status
           </h2>
@@ -601,22 +518,18 @@ const EditProductPage = () => {
             />
 
             <div>
-              <p className="font-medium text-gray-800">
-                Active Product
-              </p>
+              <p className="font-medium text-gray-800">Active Product</p>
 
               <p className="text-sm text-gray-500">
                 Inactive products won't appear on the customer website.
               </p>
             </div>
           </label>
-
         </div>
 
         {/* ===================== Action Buttons ===================== */}
 
         <div className="flex flex-col md:flex-row justify-end gap-4 pb-10">
-
           <button
             type="button"
             onClick={() => navigate("/admin/products")}
@@ -624,19 +537,23 @@ const EditProductPage = () => {
           >
             Cancel
           </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="px-8 py-3 rounded-lg bg-red-600 text-white hover:bg-red-700 transition font-medium"
+          >
+            Delete Product
+          </button>
 
           <button
             type="submit"
             disabled={createLoading}
-            className="px-8 py-3 rounded-lg bg-[#ff3f6c] text-white hover:bg-[#e7335f] transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-8 py-3 rounded-lg bg-[#26ae38] text-white hover:bg-[#0e931c] transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {createLoading ? "Updating..." : "Update Product"}
           </button>
-
         </div>
-
       </form>
-
     </div>
   );
 };

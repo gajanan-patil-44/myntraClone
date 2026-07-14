@@ -9,10 +9,10 @@ export const fetchAdminProducts = createAsyncThunk(
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch products"
+        error.response?.data?.message || "Failed to fetch products",
       );
     }
-  }
+  },
 );
 
 export const createProduct = createAsyncThunk(
@@ -26,10 +26,7 @@ export const createProduct = createAsyncThunk(
       formData.append("category", productData.category);
       formData.append("subCategory", productData.subCategory);
       formData.append("price", productData.price);
-      formData.append(
-        "discountPrice",
-        productData.discountPrice
-      );
+      formData.append("discountPrice", productData.discountPrice);
       formData.append("stock", productData.stock);
       formData.append("description", productData.description);
       formData.append("isActive", productData.isActive);
@@ -46,55 +43,73 @@ export const createProduct = createAsyncThunk(
         formData.append("images", image);
       });
 
-      const response = await axios.post(
-        "/products",
-        formData
-      );
+      const response = await axios.post("/products", formData);
 
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message ||
-          "Failed to create product"
+        error.response?.data?.message || "Failed to create product",
       );
     }
-  }
+  },
 );
 
 export const updateProduct = createAsyncThunk(
   "adminProduct/updateProduct",
   async ({ id, productData }, thunkAPI) => {
     try {
-      const response = await axios.patch(
-        `/products/${id}`,
-        productData
-      );
+      const formData = new FormData();
+
+      formData.append("name", productData.name);
+      formData.append("brand", productData.brand);
+      formData.append("category", productData.category);
+      formData.append("subCategory", productData.subCategory);
+      formData.append("price", productData.price);
+      formData.append("discountPrice", productData.discountPrice);
+      formData.append("stock", productData.stock);
+      formData.append("description", productData.description);
+      formData.append("isActive", productData.isActive);
+
+      productData.sizes.forEach((size) => {
+        formData.append("sizes", size);
+      });
+
+      productData.colors.forEach((color) => {
+        formData.append("colors", color);
+      });
+
+      productData.existingImages.forEach((image) => {
+        formData.append("existingImages", image);
+      });
+
+      productData.images.forEach((image) => {
+        formData.append("images", image);
+      });
+
+      const response = await axios.patch(`/products/${id}`, formData);
 
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to update product"
+        error.response?.data?.message || "Failed to update product",
       );
     }
-  }
+  },
 );
 
 export const toggleProductStatus = createAsyncThunk(
   "adminProduct/toggleProductStatus",
   async (id, thunkAPI) => {
     try {
-      const response = await axios.patch(
-        `/products/${id}/toggle-status`
-      );
+      const response = await axios.patch(`/products/${id}/toggle-status`);
 
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message ||
-          "Failed to update product status"
+        error.response?.data?.message || "Failed to update product status",
       );
     }
-  }
+  },
 );
 export const deleteProduct = createAsyncThunk(
   "adminProduct/deleteProduct",
@@ -104,8 +119,8 @@ export const deleteProduct = createAsyncThunk(
       return { id, ...response.data };
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to delete product"
+        error.response?.data?.message || "Failed to delete product",
       );
     }
-  }
+  },
 );

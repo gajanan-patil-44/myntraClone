@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { categories } from "../../../constants/categories";
 import { createProduct } from "../../../store/slices/adminProductThunks";
+import ImageUploader  from "../ImageUploader";
 
 const AddProductPage = () => {
   const dispatch = useDispatch();
@@ -28,7 +29,7 @@ const AddProductPage = () => {
   });
 
   const [errors, setErrors] = useState({});
-  
+  const [imagePreviews, setImagePreviews] = useState([]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -292,26 +293,15 @@ const AddProductPage = () => {
         </div>
 
         {/* Row 5 */}
-        <div>
-          <label className="block mb-2 font-medium">Product Images</label>
-
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                images: Array.from(e.target.files),
-              }))
-            }
-            className="w-full border rounded-lg px-4 py-2"
-          />
-
-          {errors.images && (
-            <p className="text-red-500 text-sm mt-1">{errors.images}</p>
-          )}
-        </div>
+        <ImageUploader
+  images={formData.images}
+  setImages={(images) =>
+    setFormData((prev) => ({
+      ...prev,
+      images,
+    }))
+  }
+/>
         {/* Row 6 */}
 
         <div>
