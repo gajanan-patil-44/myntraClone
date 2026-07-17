@@ -285,3 +285,38 @@ for (const image of product.images) {
     });
   }
 };
+
+
+// Get Inventory Alerts
+
+export const getInventoryAlerts = async (req, res) => {
+  try {
+    const products = await Product.find({
+      stock: { $lte: 5 },
+      isActive: true,
+    })
+      .select("_id name stock images")
+      .sort({ stock: 1 });
+
+    const notifications = products.map((product) => ({
+      _id: product._id,
+      name: product.name,
+      stock: product.stock,
+      image: product.images?.[0] || "",
+      status: product.stock === 0 ? "out_of_stock" : "low_stock",
+    }));
+
+    res.status(200).json({
+      success: true,
+      count: notifications.length,
+      notifications,
+    });
+  } catch (error) {
+    console.error("Get Inventory Alerts Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch inventory alerts.",
+    });
+  }
+};

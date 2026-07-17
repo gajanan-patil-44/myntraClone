@@ -1,6 +1,6 @@
 import express from "express";
 
-import { getAllProducts, getProductById, createProduct, updateProduct,toggleProductStatus,deleteProduct, getAllProductsAdmin} from "../controllers/productController.js";
+import { getAllProducts, getProductById, createProduct, updateProduct,toggleProductStatus,deleteProduct, getAllProductsAdmin, getInventoryAlerts} from "../controllers/productController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import adminMiddleware from "../middleware/adminMiddleware.js";
 import upload from "../middleware/uploadMiddleware.js";
@@ -16,6 +16,12 @@ router.get(
 );
 
 router.get("/", getAllProducts);
+router.get(
+  "/admin/inventory-alerts",
+  authMiddleware,
+  adminMiddleware,
+  getInventoryAlerts
+);
 router.get("/:id", getProductById);
 
 //CREATE PRODUCT - ONLY ADMIN

@@ -5,6 +5,7 @@ import {
   updateProduct,
   toggleProductStatus,
   deleteProduct,
+  fetchInventoryAlerts,
 } from "./adminProductThunks";
 
 const initialState = {
@@ -12,6 +13,8 @@ const initialState = {
   loading: false,
   createLoading: false,
   error: null,
+  inventoryAlerts: [],
+  inventoryAlertCount: 0,
 };
 
 const adminProductSlice = createSlice({
@@ -113,6 +116,15 @@ const adminProductSlice = createSlice({
 
       .addCase(deleteProduct.rejected, (state, action) => {
         state.error = action.payload;
+      })
+      .addCase(fetchInventoryAlerts.fulfilled, (state, action) => {
+        state.inventoryAlerts = action.payload.notifications;
+        state.inventoryAlertCount = action.payload.count;
+      })
+
+      .addCase(fetchInventoryAlerts.rejected, (state) => {
+        state.inventoryAlerts = [];
+        state.inventoryAlertCount = 0;
       });
   },
 });

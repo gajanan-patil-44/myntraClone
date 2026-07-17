@@ -6,6 +6,7 @@ import {
   toggleProductStatus,
   deleteProduct,
 } from "../../../store/slices/adminProductThunks";
+import { Search } from "lucide-react";
 
 const ProductListPage = () => {
   const navigate = useNavigate();
@@ -15,6 +16,23 @@ const ProductListPage = () => {
   const { products, loading, error } = useSelector(
     (state) => state.adminProduct,
   );
+
+  const inventoryAlerts = products
+    .filter((product) => product.stock <= 5)
+    .sort((a, b) => a.stock - b.stock);
+
+  const [currentAlertIndex, setCurrentAlertIndex] = useState(0);
+  useEffect(() => {
+    if (inventoryAlerts.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentAlertIndex((prev) =>
+        prev === inventoryAlerts.length - 1 ? 0 : prev + 1,
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [inventoryAlerts]);
 
   useEffect(() => {
     dispatch(fetchAdminProducts());
@@ -51,6 +69,70 @@ const ProductListPage = () => {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Product Management</h1>
 
+        {/* Inventory Alert */}
+        {inventoryAlerts.length > 0 && (
+          <div
+            onClick={() =>
+              navigate(
+                `/admin/products/edit/${inventoryAlerts[currentAlertIndex]._id}`,
+              )
+            }
+            className={` cursor-pointer rounded-xl border-l-4 px-5 py-4 shadow-sm transition-all duration-300
+      ${
+        inventoryAlerts[currentAlertIndex].stock === 0
+          ? "border-red-500 bg-red-50 hover:bg-red-100"
+          : "border-orange-500 bg-orange-50 hover:bg-orange-100"
+      }`}
+          >
+            <div className="flex w-150 items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div
+                  className={`h-3 w-3 rounded-full animate-pulse ${
+                    inventoryAlerts[currentAlertIndex].stock === 0
+                      ? "bg-red-500"
+                      : "bg-orange-500"
+                  }`}
+                />
+
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`text-xs font-bold uppercase tracking-widest ${
+                      inventoryAlerts[currentAlertIndex].stock === 0
+                        ? "text-red-600"
+                        : "text-orange-600"
+                    }`}
+                  >
+                    {inventoryAlerts[currentAlertIndex].stock === 0
+                      ? "OUT OF STOCK"
+                      : "LOW STOCK"}
+                  </span>
+
+                  <span className="text-gray-300">•</span>
+
+                  <span className="font-semibold text-gray-900">
+                    {inventoryAlerts[currentAlertIndex].name}
+                  </span>
+
+                  <span className="text-gray-500">
+                    {inventoryAlerts[currentAlertIndex].stock === 0
+                      ? "Out of stock"
+                      : `${inventoryAlerts[currentAlertIndex].stock} left`}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  inventoryAlerts[currentAlertIndex].stock === 0
+                    ? "bg-red-100 text-red-700"
+                    : "bg-orange-100 text-orange-700"
+                }`}
+              >
+                Restock →
+              </button>
+            </div>
+          </div>
+        )}
         <button
           onClick={() => navigate("/admin/products/add")}
           className="bg-[#ff3f6c] hover:bg-[#e7335f] text-white px-5 py-2.5 rounded-lg font-medium transition"
@@ -59,14 +141,28 @@ const ProductListPage = () => {
         </button>
       </div>
 
-      <div className="flex justify-between items-center mb-6">
-        <input
-          type="text"
-          placeholder="Search by product, brand, category..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full md:w-96 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500"
-        />
+      <div className="mb-6 flex items-center justify-between gap-5">
+        {/* Search */}
+        <div className="relative flex-1 max-w-2xl ">
+          <Search
+            size={20}
+            className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+
+          <input
+            type="text"
+            placeholder="Search products, brand or category..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="h-15 w-full rounded-2xl border border-gray-200 bg-white pl-14 pr-5 text-[15px] font-medium text-gray-700 shadow-md transition-all duration-200 placeholder:text-gray-400 focus:border-pink-500 focus:outline-none focus:ring-4 focus:ring-pink-100 "
+          />
+        </div>
+
+        {/* Future Space */}
+        <div className="flex items-center gap-3">
+          {/* Stock Filter */}
+          {/* Sort */}
+        </div>
       </div>
 
       {/* Loading */}

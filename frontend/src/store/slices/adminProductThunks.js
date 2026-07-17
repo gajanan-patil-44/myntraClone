@@ -124,3 +124,17 @@ export const deleteProduct = createAsyncThunk(
     }
   },
 );
+
+export const fetchInventoryAlerts = createAsyncThunk(
+  "adminProducts/fetchInventoryAlerts",
+  async (_, thunkAPI) => {
+    try {
+      const response = await axios.get("/products/admin/inventory-alerts");
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch inventory alerts."
+      );
+    }
+  }
+);
