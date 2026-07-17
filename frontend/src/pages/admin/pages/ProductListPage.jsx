@@ -1,17 +1,21 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   fetchAdminProducts,
   toggleProductStatus,
   deleteProduct,
 } from "../../../store/slices/adminProductThunks";
-import { Search } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 
 const ProductListPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState("");
+  const [inventoryFilter, setInventoryFilter] = useState("all");
+  const [showInventoryMenu, setShowInventoryMenu] = useState(false);
+  const [searchParams] = useSearchParams();
+  const isAlertView = searchParams.get("inventory") === "alerts";
 
   const { products, loading, error } = useSelector(
     (state) => state.adminProduct,
@@ -52,16 +56,30 @@ const ProductListPage = () => {
     await dispatch(deleteProduct(id));
   };
 
-  const filteredProducts = products.filter((product) => {
-    const search = searchTerm.toLowerCase();
+ const filteredProducts = products.filter((product) => {
+  const search = searchTerm.toLowerCase();
 
-    return (
-      product.name.toLowerCase().includes(search) ||
-      product.brand.toLowerCase().includes(search) ||
-      product.category.toLowerCase().includes(search) ||
-      product.subCategory.toLowerCase().includes(search)
-    );
-  });
+  const matchesSearch =
+    product.name.toLowerCase().includes(search) ||
+    product.brand.toLowerCase().includes(search) ||
+    product.category.toLowerCase().includes(search) ||
+    product.subCategory.toLowerCase().includes(search);
+
+  let matchesInventory = true;
+
+  if (inventoryFilter === "out_of_stock") {
+    matchesInventory = product.stock === 0;
+  } else if (inventoryFilter === "low_stock") {
+    matchesInventory = product.stock > 0 && product.stock <= 5;
+  } else if (inventoryFilter === "in_stock") {
+    matchesInventory = product.stock > 5;
+  }
+
+  return matchesSearch && matchesInventory;
+});
+const displayProducts = isAlertView
+  ? [...filteredProducts].sort((a, b) => a.stock - b.stock)
+  : filteredProducts;
 
   return (
     <div className="p-6">
@@ -158,10 +176,84 @@ const ProductListPage = () => {
           />
         </div>
 
-        {/* Future Space */}
-        <div className="flex items-center gap-3">
-          {/* Stock Filter */}
-          {/* Sort */}
+        <div className="relative flex items-center gap-3">
+          <button
+            onClick={() => setShowInventoryMenu((prev) => !prev)}
+            className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm transition hover:border-pink-400 hover:bg-pink-50"
+          >
+            {inventoryFilter === "all"
+              ? "All Products"
+              : inventoryFilter === "out_of_stock"
+                ? "Out of Stock"
+                : inventoryFilter === "low_stock"
+                  ? "Low Stock"
+                  : "In Stock"}
+            <ChevronDown size={18} />
+          </button>
+
+          {showInventoryMenu && (
+            <div className="absolute right-0 top-16 w-56 rounded-xl border border-gray-200 bg-white shadow-xl z-50">
+              <button
+                onClick={() => {
+                  setInventoryFilter("all");
+                  setShowInventoryMenu(false);
+                }}
+                className={`block w-full px-4 py-3 text-left transition
+    ${
+      inventoryFilter === "all"
+        ? "bg-pink-50 font-semibold text-pink-600"
+        : "hover:bg-gray-50"
+    }`}
+              >
+                All Products
+              </button>
+
+              <button
+                onClick={() => {
+                  setInventoryFilter("out_of_stock");
+                  setShowInventoryMenu(false);
+                }}
+                className={`block w-full px-4 py-3 text-left transition
+    ${
+      inventoryFilter === "out_of_stock"
+        ? "bg-red-50 font-semibold text-red-600"
+        : "hover:bg-gray-50"
+    }`}
+              >
+                Out of Stock
+              </button>
+
+              <button
+                onClick={() => {
+                  setInventoryFilter("low_stock");
+                  setShowInventoryMenu(false);
+                }}
+                className={`block w-full px-4 py-3 text-left transition
+    ${
+      inventoryFilter === "low_stock"
+        ? "bg-orange-50 font-semibold text-orange-600"
+        : "hover:bg-gray-50"
+    }`}
+              >
+                Low Stock
+              </button>
+
+              <button
+                onClick={() => {
+                  setInventoryFilter("in_stock");
+                  setShowInventoryMenu(false);
+                }}
+                className={`block w-full px-4 py-3 text-left transition
+    ${
+      inventoryFilter === "in_stock"
+        ? "bg-green-50 font-semibold text-green-600"
+        : "hover:bg-gray-50"
+    }`}
+              >
+                In Stock
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -195,7 +287,7 @@ const ProductListPage = () => {
             </thead>
 
             <tbody>
-              {filteredProducts.map((product) => (
+              {displayProducts.map((product) => (
                 <tr
                   key={product._id}
                   onClick={() =>

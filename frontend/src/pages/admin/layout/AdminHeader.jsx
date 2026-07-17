@@ -1,13 +1,14 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../../../store/slices/authThunks";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { fetchInventoryAlerts } from "../../../store/slices/adminProductThunks";
 import { Bell } from "lucide-react";
 
 const AdminHeader = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const notificationRef = useRef(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [currentAlertIndex, setCurrentAlertIndex] = useState(0);
 
@@ -37,6 +38,23 @@ const AdminHeader = () => {
     return () => clearInterval(interval);
   }, [inventoryAlerts]);
   // console.log(inventoryAlerts[0])
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
       <div className="px-8 py-5">
@@ -53,83 +71,15 @@ const AdminHeader = () => {
             </p>
           </div>
 
-          {/* Center - Inventory Notification
-          <div className="flex-1 flex justify-center px-8">
-            {inventoryAlerts.length > 0 && (
-              <div
-                onClick={() => {
-                  navigate(
-                    `/admin/products/edit/${inventoryAlerts[currentAlertIndex]._id}`,
-                  );
-                }}
-                className={`w-[620px] h-20 cursor-pointer rounded-xl border-l-4 px-5 shadow-sm transition-all duration-300 flex items-center            ${
-                  inventoryAlerts[currentAlertIndex].status === "out_of_stock"
-                    ? "border-red-500 bg-red-50 hover:bg-red-100"
-                    : "border-orange-500 bg-orange-50 hover:bg-orange-100"
-                }`}
-              >
-                <div className="flex w-full items-center ">
-                  <div className="flex flex-1 items-center gap-4 min-w-0">
-                    <div
-                      className={`h-3 w-3 rounded-full animate-pulse
-                  ${
-                    inventoryAlerts[currentAlertIndex].status === "out_of_stock"
-                      ? "bg-red-500"
-                      : "bg-orange-500"
-                  }`}
-                    />
-
-                    <div className="flex items-center gap-3 whitespace-nowrap overflow-hidden">
-                      {" "}
-                      <span
-                        className={`text-xs font-bold uppercase tracking-[2px]
-                    ${
-                      inventoryAlerts[currentAlertIndex].status ===
-                      "out_of_stock"
-                        ? "text-red-600"
-                        : "text-orange-600"
-                    }`}
-                      >
-                        {inventoryAlerts[currentAlertIndex].status ===
-                        "out_of_stock"
-                          ? "OUT OF STOCK"
-                          : "LOW STOCK"}
-                      </span>
-                      <span className="text-gray-300">•</span>
-                      <span className="max-w-[220px] truncate font-semibold text-gray-900">
-                        {inventoryAlerts[currentAlertIndex].name}
-                      </span>
-                      <span className="text-gray-500">
-                        {inventoryAlerts[currentAlertIndex].status ===
-                        "out_of_stock"
-                          ? "Out of stock"
-                          : `${inventoryAlerts[currentAlertIndex].stock} left`}
-                      </span>
-                    </div>
-                  </div>
-
-                  <button
-                    className={`ml-6 rounded-full px-4 py-2 text-sm font-semibold transition
-                ${
-                  inventoryAlerts[currentAlertIndex].status === "out_of_stock"
-                    ? "bg-red-100 text-red-700 hover:bg-red-200"
-                    : "bg-orange-100 text-orange-700 hover:bg-orange-200"
-                }`}
-                  >
-                    Restock →
-                  </button>
-                </div>
-              </div>
-            )}
-          </div> */}
-
           {/* Right */}
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-5 ref={notificationRef}">
+            <div className="relative" ref={notificationRef}>
             <button
               onClick={() => setShowNotifications((prev) => !prev)}
-              className="relative rounded-full p-2 hover:bg-gray-100 transition"
+              className="relative rounded-full p-2 hover:bg-gray-100 transition "
             >
               <Bell size={24} className="text-gray-700" />
+             
 
               {inventoryAlertCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold text-white">
@@ -137,6 +87,68 @@ const AdminHeader = () => {
                 </span>
               )}
             </button>
+             {showNotifications && (
+                <div className="absolute right-0 top-14 z-50 w-96 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
+                  {/* Header */}
+                  <div className="border-b bg-gray-50 px-5 py-4">
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      Inventory Alerts
+                    </h3>
+
+                    <p className="text-sm text-gray-500">
+                      {inventoryAlertCount} products require attention
+                    </p>
+                  </div>
+
+                  {/* Alerts */}
+                  <div className="max-h-96 overflow-y-auto">
+                    {inventoryAlerts.map((product) => (
+                      <div
+                        key={product._id}
+                        className="flex items-center gap-4 border-b px-5 py-4 transition hover:bg-gray-50"
+                      >
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="h-12 w-12 rounded-lg object-cover border"
+                        />
+
+                        <div className="flex-1">
+                          <h4 className="font-medium text-gray-800">
+                            {product.name}
+                          </h4>
+
+                          <p
+                            className={`text-sm ${
+                              product.stock === 0
+                                ? "text-red-600"
+                                : "text-orange-600"
+                            }`}
+                          >
+                            {product.stock === 0
+                              ? "Out of Stock"
+                              : `Only ${product.stock} left`}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="border-t bg-gray-50 p-3">
+                    <button
+                      onClick={() => {
+                        setShowNotifications(false);
+                        navigate("/admin/products?inventory=alerts");
+                      }}
+                      className="w-full rounded-lg bg-pink-500 py-2 text-sm font-semibold text-white transition hover:bg-pink-600"
+                    >
+                      View All Alerts
+                    </button>
+                  </div>
+                </div>
+              )}
+              </div>
 
             <button
               onClick={handleLogout}
