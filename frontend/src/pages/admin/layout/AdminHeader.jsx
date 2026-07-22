@@ -11,6 +11,7 @@ const AdminHeader = () => {
   const notificationRef = useRef(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [currentAlertIndex, setCurrentAlertIndex] = useState(0);
+  const { user } = useSelector((state) => state.auth);
 
   const handleLogout = async () => {
     const resultAction = await dispatch(logoutUser());
@@ -28,15 +29,7 @@ const AdminHeader = () => {
     dispatch(fetchInventoryAlerts());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (inventoryAlerts.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setCurrentAlertIndex((prev) => (prev + 1) % inventoryAlerts.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [inventoryAlerts]);
+  
   // console.log(inventoryAlerts[0])
 
   useEffect(() => {
@@ -57,22 +50,22 @@ const AdminHeader = () => {
   }, []);
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
-      <div className="px-8 py-5">
+      <div className="px-8 py-3 mx-30">
         {/* ===================== Top Row ===================== */}
         <div className="flex items-center justify-between">
           {/* Left - Admin Greeting */}
-          <div className="min-w-56">
-            <p className="text-sm text-gray-500 font-medium">Welcome back,</p>
+          <div className="min-w-56 flex gap-6 mx-2.5">
+            <p className="text-xl text-gray-500 font-medium">Welcome back</p>
 
-            <h2 className="text-2xl font-bold text-gray-800">Gajanan 👋</h2>
+            <h2 className="text-2xl font-bold text-gray-800">{user?.firstName} 👋</h2>
 
-            <p className="text-xs uppercase tracking-widest text-gray-400 mt-1">
+            <p className="text-xl uppercase tracking-widest text-gray-400 mt-1">
               Administrator
             </p>
           </div>
 
           {/* Right */}
-          <div className="flex items-center gap-5 ref={notificationRef}">
+          <div className="flex items-center gap-10 ref={notificationRef}">
             <div className="relative" ref={notificationRef}>
             <button
               onClick={() => setShowNotifications((prev) => !prev)}

@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 import { categories } from "../../../constants/categories";
 import { createProduct } from "../../../store/slices/adminProductThunks";
-import ImageUploader  from "../ImageUploader";
+import ImageUploader from "../ImageUploader";
+import { toast } from "react-hot-toast";
 
 const AddProductPage = () => {
   const dispatch = useDispatch();
@@ -33,6 +34,12 @@ const AddProductPage = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    if (
+      (name === "price" || name === "discountPrice" || name === "stock") &&
+      Number(value) < 0
+    ) {
+      return;
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -67,9 +74,27 @@ const AddProductPage = () => {
     if (!formData.subCategory)
       newErrors.subCategory = "Sub Category is required";
 
-    if (!formData.price) newErrors.price = "Price is required";
+    // Price
+    if (!formData.price) {
+      newErrors.price = "Price is required";
+    } else if (Number(formData.price) <= 0) {
+      newErrors.price = "Price must be greater than 0";
+    }
 
-    if (!formData.stock) newErrors.stock = "Stock is required";
+    // Discount Price
+    if (
+      formData.discountPrice &&
+      Number(formData.discountPrice) > Number(formData.price)
+    ) {
+      newErrors.discountPrice = "Discount price cannot be greater than price";
+    }
+
+    // Stock
+    if (!formData.stock) {
+      newErrors.stock = "Stock is required";
+    } else if (Number(formData.stock) < 0) {
+      newErrors.stock = "Stock cannot be negative";
+    }
 
     if (!formData.description.trim())
       newErrors.description = "Description is required";
@@ -84,6 +109,8 @@ const AddProductPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (createLoading) return;
 
     if (!validate()) return;
 
@@ -115,7 +142,10 @@ const AddProductPage = () => {
     const result = await dispatch(createProduct(payload));
 
     if (createProduct.fulfilled.match(result)) {
+      toast.success("Product added successfully");
       navigate("/admin/products");
+    } else {
+      toast.error(result.payload || "Failed to add product");
     }
   };
 
@@ -219,6 +249,8 @@ const AddProductPage = () => {
             <input
               type="number"
               name="price"
+              min={0}
+              onWheel={(e) => e.target.blur()}
               value={formData.price}
               onChange={handleChange}
               className="w-full border rounded-lg px-4 py-2"
@@ -235,10 +267,17 @@ const AddProductPage = () => {
             <input
               type="number"
               name="discountPrice"
+              min={0}
+              onWheel={(e) => e.target.blur()}
               value={formData.discountPrice}
               onChange={handleChange}
               className="w-full border rounded-lg px-4 py-2"
             />
+            {errors.discountPrice && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.discountPrice}
+              </p>
+            )}
           </div>
 
           <div>
@@ -247,6 +286,8 @@ const AddProductPage = () => {
             <input
               type="number"
               name="stock"
+              min={0}
+              onWheel={(e) => e.target.blur()}
               value={formData.stock}
               onChange={handleChange}
               className="w-full border rounded-lg px-4 py-2"
@@ -294,14 +335,14 @@ const AddProductPage = () => {
 
         {/* Row 5 */}
         <ImageUploader
-  images={formData.images}
-  setImages={(images) =>
-    setFormData((prev) => ({
-      ...prev,
-      images,
-    }))
-  }
-/>
+          images={formData.images}
+          setImages={(images) =>
+            setFormData((prev) => ({
+              ...prev,
+              images,
+            }))
+          }
+        />
         {/* Row 6 */}
 
         <div>

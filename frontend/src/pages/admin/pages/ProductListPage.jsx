@@ -16,6 +16,7 @@ const ProductListPage = () => {
   const [showInventoryMenu, setShowInventoryMenu] = useState(false);
   const [searchParams] = useSearchParams();
   const isAlertView = searchParams.get("inventory") === "alerts";
+  const [sortByStock, setSortByStock] = useState(false);
 
   const { products, loading, error } = useSelector(
     (state) => state.adminProduct,
@@ -41,6 +42,11 @@ const ProductListPage = () => {
   useEffect(() => {
     dispatch(fetchAdminProducts());
   }, [dispatch]);
+  useEffect(() => {
+  if (isAlertView) {
+    setSortByStock(true);
+  }
+}, [isAlertView]);
 
   const handleToggle = async (id) => {
     await dispatch(toggleProductStatus(id));
@@ -56,30 +62,32 @@ const ProductListPage = () => {
     await dispatch(deleteProduct(id));
   };
 
- const filteredProducts = products.filter((product) => {
-  const search = searchTerm.toLowerCase();
+  const filteredProducts = products.filter((product) => {
+    const search = searchTerm.toLowerCase();
 
-  const matchesSearch =
-    product.name.toLowerCase().includes(search) ||
-    product.brand.toLowerCase().includes(search) ||
-    product.category.toLowerCase().includes(search) ||
-    product.subCategory.toLowerCase().includes(search);
+    const matchesSearch =
+      product.name.toLowerCase().includes(search) ||
+      product.brand.toLowerCase().includes(search) ||
+      product.category.toLowerCase().includes(search) ||
+      product.subCategory.toLowerCase().includes(search);
 
-  let matchesInventory = true;
+    let matchesInventory = true;
 
-  if (inventoryFilter === "out_of_stock") {
-    matchesInventory = product.stock === 0;
-  } else if (inventoryFilter === "low_stock") {
-    matchesInventory = product.stock > 0 && product.stock <= 5;
-  } else if (inventoryFilter === "in_stock") {
-    matchesInventory = product.stock > 5;
-  }
+    if (inventoryFilter === "out_of_stock") {
+      matchesInventory = product.stock === 0;
+    } else if (inventoryFilter === "low_stock") {
+      matchesInventory = product.stock > 0 && product.stock <= 5;
+    } else if (inventoryFilter === "in_stock") {
+      matchesInventory = product.stock > 5;
+    }
 
-  return matchesSearch && matchesInventory;
-});
-const displayProducts = isAlertView
-  ? [...filteredProducts].sort((a, b) => a.stock - b.stock)
-  : filteredProducts;
+    return matchesSearch && matchesInventory;
+  });
+  const displayProducts = [...filteredProducts];
+
+if (sortByStock) {
+  displayProducts.sort((a, b) => a.stock - b.stock);
+}
 
   return (
     <div className="p-6">
@@ -96,11 +104,11 @@ const displayProducts = isAlertView
               )
             }
             className={` cursor-pointer rounded-xl border-l-4 px-5 py-4 shadow-sm transition-all duration-300
-      ${
-        inventoryAlerts[currentAlertIndex].stock === 0
-          ? "border-red-500 bg-red-50 hover:bg-red-100"
-          : "border-orange-500 bg-orange-50 hover:bg-orange-100"
-      }`}
+            ${
+              inventoryAlerts[currentAlertIndex].stock === 0
+                ? "border-red-500 bg-red-50 hover:bg-red-100"
+                : "border-orange-500 bg-orange-50 hover:bg-orange-100"
+            }`}
           >
             <div className="flex w-150 items-center justify-between">
               <div className="flex items-center gap-4">
@@ -199,11 +207,11 @@ const displayProducts = isAlertView
                   setShowInventoryMenu(false);
                 }}
                 className={`block w-full px-4 py-3 text-left transition
-    ${
-      inventoryFilter === "all"
-        ? "bg-pink-50 font-semibold text-pink-600"
-        : "hover:bg-gray-50"
-    }`}
+                ${
+                  inventoryFilter === "all"
+                    ? "bg-pink-50 font-semibold text-pink-600"
+                    : "hover:bg-gray-50"
+                }`}
               >
                 All Products
               </button>
@@ -214,11 +222,11 @@ const displayProducts = isAlertView
                   setShowInventoryMenu(false);
                 }}
                 className={`block w-full px-4 py-3 text-left transition
-    ${
-      inventoryFilter === "out_of_stock"
-        ? "bg-red-50 font-semibold text-red-600"
-        : "hover:bg-gray-50"
-    }`}
+                ${
+                  inventoryFilter === "out_of_stock"
+                    ? "bg-red-50 font-semibold text-red-600"
+                    : "hover:bg-gray-50"
+                }`}
               >
                 Out of Stock
               </button>
@@ -229,11 +237,11 @@ const displayProducts = isAlertView
                   setShowInventoryMenu(false);
                 }}
                 className={`block w-full px-4 py-3 text-left transition
-    ${
-      inventoryFilter === "low_stock"
-        ? "bg-orange-50 font-semibold text-orange-600"
-        : "hover:bg-gray-50"
-    }`}
+                ${
+                  inventoryFilter === "low_stock"
+                    ? "bg-orange-50 font-semibold text-orange-600"
+                    : "hover:bg-gray-50"
+                }`}
               >
                 Low Stock
               </button>
@@ -244,14 +252,32 @@ const displayProducts = isAlertView
                   setShowInventoryMenu(false);
                 }}
                 className={`block w-full px-4 py-3 text-left transition
-    ${
-      inventoryFilter === "in_stock"
-        ? "bg-green-50 font-semibold text-green-600"
-        : "hover:bg-gray-50"
-    }`}
+                ${
+                  inventoryFilter === "in_stock"
+                    ? "bg-green-50 font-semibold text-green-600"
+                    : "hover:bg-gray-50"
+                }`}
               >
                 In Stock
               </button>
+
+              <div className="my-1 border-t">
+                <button
+                  onClick={() => {
+                    setInventoryFilter("all");
+                    setSortByStock(true);
+                    setShowInventoryMenu(false);
+                  }}
+                  className={`block w-full px-4 py-3 text-left transition
+                  ${
+                    sortByStock
+                      ? "bg-blue-50 font-semibold text-blue-600"
+                      : "hover:bg-gray-50"
+                  }`}
+                >
+                  Sort by Stock
+                </button>
+              </div>
             </div>
           )}
         </div>
