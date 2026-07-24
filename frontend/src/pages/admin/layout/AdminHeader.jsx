@@ -24,6 +24,7 @@ const AdminHeader = () => {
   const { inventoryAlertCount, inventoryAlerts } = useSelector(
     (state) => state.adminProduct,
   );
+  // console.log(inventoryAlerts);
 
   useEffect(() => {
     dispatch(fetchInventoryAlerts());

@@ -293,7 +293,7 @@ export const getInventoryAlerts = async (req, res) => {
   try {
     const products = await Product.find({
       stock: { $lte: 5 },
-      isActive: true,
+      // isActive: true,
     })
       .select("_id name stock images")
       .sort({ stock: 1 });
@@ -305,7 +305,7 @@ export const getInventoryAlerts = async (req, res) => {
       image: product.images?.[0] || "",
       status: product.stock === 0 ? "out_of_stock" : "low_stock",
     }));
-
+console.log("Notifications:", notifications);
     res.status(200).json({
       success: true,
       count: notifications.length,
